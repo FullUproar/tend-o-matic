@@ -45,6 +45,64 @@ describe("openCart", () => {
     expect(c.idVerified).toBe(true);
     expect(c.openedAt).toBe("2026-05-14T10:00:00Z");
   });
+
+  it("defaults serviceMode to GUIDED", () => {
+    const c = openCart({
+      tenantId: "t1",
+      locationId: "loc1",
+      customer: { kind: "MI_ADULT_USE" },
+      ruleset: MI_2026_05_14,
+    });
+    expect(c.serviceMode).toBe("GUIDED");
+  });
+
+  it("respects serviceMode override at open time", () => {
+    const c = openCart({
+      tenantId: "t1",
+      locationId: "loc1",
+      customer: { kind: "MI_ADULT_USE" },
+      ruleset: MI_2026_05_14,
+      serviceMode: "EXPRESS",
+    });
+    expect(c.serviceMode).toBe("EXPRESS");
+  });
+});
+
+describe("reduce — SET_SERVICE_MODE", () => {
+  it("flips serviceMode and never errors", () => {
+    const c0 = openCart({
+      tenantId: "t1",
+      locationId: "loc1",
+      customer: { kind: "MI_ADULT_USE" },
+      ruleset: MI_2026_05_14,
+    });
+    const r = reduce(c0, { type: "SET_SERVICE_MODE", serviceMode: "EXPRESS" }, kernel);
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.cart.serviceMode).toBe("EXPRESS");
+  });
+
+  it("preserves existing lines + customer state when mode changes mid-cart", () => {
+    const c0 = openCart({
+      tenantId: "t1",
+      locationId: "loc1",
+      customer: { kind: "MI_ADULT_USE" },
+      ruleset: MI_2026_05_14,
+      idVerified: true,
+    });
+    const withLine = reduce(c0, { type: "ADD_LINE", line: flower(3.5) }, kernel);
+    expect(withLine.ok).toBe(true);
+    if (!withLine.ok) return;
+    const flipped = reduce(
+      withLine.cart,
+      { type: "SET_SERVICE_MODE", serviceMode: "MEDICAL_SENSITIVE" },
+      kernel,
+    );
+    expect(flipped.ok).toBe(true);
+    if (!flipped.ok) return;
+    expect(flipped.cart.lines).toHaveLength(1);
+    expect(flipped.cart.serviceMode).toBe("MEDICAL_SENSITIVE");
+    expect(flipped.cart.idVerified).toBe(true);
+  });
 });
 
 describe("reduce — ADD_LINE", () => {

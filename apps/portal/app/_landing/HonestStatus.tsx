@@ -20,6 +20,7 @@ export function HonestStatus() {
               "Compliance rules engine (MI + IL)",
               "Per-line tax attribution + ESC/POS receipts",
               "Cart-time limit headroom",
+              "Service mode: Express / Guided / First-time / Medical",
               "Inventory + Metrc package model",
               "Sales reporting + void with reason",
               "Audit log + manager override flow",

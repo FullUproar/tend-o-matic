@@ -4,6 +4,8 @@ import type { TaxRate } from "./tax";
 import type { Ruleset } from "./ruleset";
 import type { RefusalReason } from "./refusal";
 import type { ComplianceKernel } from "./kernel";
+import type { ServiceMode } from "./service-mode";
+import { DEFAULT_SERVICE_MODE } from "./service-mode";
 
 // CartAction is the closed set of user-driven state changes the cart
 // supports. Per Afterroar's "no cart state machine" pattern, there is
@@ -15,7 +17,8 @@ export type CartAction =
   | { type: "REMOVE_LINE"; packageId: string }
   | { type: "SET_CUSTOMER"; customer: CustomerType }
   | { type: "SET_ID_VERIFIED"; idVerified: boolean }
-  | { type: "SET_LOCAL_TAXES"; localTaxes: ReadonlyArray<TaxRate> };
+  | { type: "SET_LOCAL_TAXES"; localTaxes: ReadonlyArray<TaxRate> }
+  | { type: "SET_SERVICE_MODE"; serviceMode: ServiceMode };
 
 export type ReducerResult =
   | { ok: true; cart: Cart }
@@ -32,6 +35,7 @@ export function openCart(args: {
   openedAt?: string;
   idVerified?: boolean;
   localTaxes?: ReadonlyArray<TaxRate>;
+  serviceMode?: ServiceMode;
 }): Cart {
   return {
     tenantId: args.tenantId,
@@ -42,6 +46,7 @@ export function openCart(args: {
     openedAt: args.openedAt ?? new Date().toISOString(),
     idVerified: args.idVerified ?? false,
     localTaxes: args.localTaxes,
+    serviceMode: args.serviceMode ?? DEFAULT_SERVICE_MODE,
   };
 }
 
@@ -83,6 +88,12 @@ export function reduce(
       return {
         ok: true,
         cart: { ...cart, localTaxes: action.localTaxes },
+      };
+
+    case "SET_SERVICE_MODE":
+      return {
+        ok: true,
+        cart: { ...cart, serviceMode: action.serviceMode },
       };
   }
 }

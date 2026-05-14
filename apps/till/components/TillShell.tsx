@@ -11,12 +11,15 @@ import {
   type CustomerType,
   type LineItem,
   type RefusalReason,
+  type ServiceMode,
 } from "@tend-o-matic/compliance";
 import { CustomerSelector } from "./CustomerSelector";
 import { ProductPicker } from "./ProductPicker";
 import { CartView } from "./CartView";
 import { HeadroomBar } from "./HeadroomBar";
 import { RefusalBanner } from "./RefusalBanner";
+import { ServiceModeToggle } from "./ServiceModeToggle";
+import { GuidanceCopy } from "./GuidanceCopy";
 import { TenderEntry } from "./TenderEntry";
 import { ReceiptPreview } from "./ReceiptPreview";
 import type { SessionIdentity } from "../lib/identity";
@@ -54,6 +57,7 @@ export function TillShell({ identity, catalog }: Props) {
 
   const taxResult = useMemo(() => computeTaxBreakdown(cart), [cart]);
   const grandTotalCents = taxResult.ok ? taxResult.breakdown.grandTotalCents : 0;
+  const serviceMode: ServiceMode = cart.serviceMode ?? "GUIDED";
 
   const onSetCustomer = (customer: CustomerType) => {
     const r = reduce(cart, { type: "SET_CUSTOMER", customer }, kernel);
@@ -91,6 +95,11 @@ export function TillShell({ identity, catalog }: Props) {
       setCart(r.cart);
       setRefusal(null);
     }
+  };
+
+  const onSetServiceMode = (mode: ServiceMode) => {
+    const r = reduce(cart, { type: "SET_SERVICE_MODE", serviceMode: mode }, kernel);
+    if (r.ok) setCart(r.cart);
   };
 
   const onCompleteSale = (tenderCents: number) => {
@@ -175,13 +184,19 @@ export function TillShell({ identity, catalog }: Props) {
             />
           ) : (
             <>
+              <ServiceModeToggle mode={serviceMode} onChange={onSetServiceMode} />
               <CustomerSelector
                 customer={cart.customer}
                 idVerified={cart.idVerified}
                 onCustomerChange={onSetCustomer}
                 onIdVerifiedChange={onSetIdVerified}
               />
-              <ProductPicker catalog={catalog} onAddLine={onAddLine} />
+              <GuidanceCopy mode={serviceMode} />
+              <ProductPicker
+                catalog={catalog}
+                onAddLine={onAddLine}
+                serviceMode={serviceMode}
+              />
               {refusal && <RefusalBanner refusal={refusal} />}
               {serverError && (
                 <div

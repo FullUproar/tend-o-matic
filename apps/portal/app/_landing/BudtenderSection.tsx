@@ -14,11 +14,16 @@ export function BudtenderSection() {
           </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
           <FeatureCard
             kicker="live headroom"
             title="No surprise refusals"
             body="Every limit the customer is bumping against — flower oz, concentrate g, infused mg THC — visible while the cart is being built. Yellow at 70%, red at 90%. Your budtender knows before the customer does."
+          />
+          <FeatureCard
+            kicker="service mode"
+            title="Express for regulars. Guided for new folks."
+            body="One toggle, four modes: Express (keep the line moving), Guided (lead with effect, not THC%), First-time (start-low/go-slow + ID nudge), Medical-sensitive (no clinical claims; consult a clinician). The till matches the customer, not the other way around."
           />
           <FeatureCard
             kicker="real product knowledge"

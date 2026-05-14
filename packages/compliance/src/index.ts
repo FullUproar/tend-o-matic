@@ -7,6 +7,7 @@ export * from "./equivalency";
 export * from "./provenance";
 export * from "./ruleset";
 export * from "./cart";
+export * from "./service-mode";
 export * from "./refusal";
 export * from "./tax";
 export * from "./receipt";

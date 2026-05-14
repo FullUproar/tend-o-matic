@@ -1,20 +1,25 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { LineItem } from "@tend-o-matic/compliance";
+import type { LineItem, ServiceMode } from "@tend-o-matic/compliance";
 import type { CatalogProduct } from "../lib/catalog";
 import { useBarcodeScanner } from "../lib/useBarcodeScanner";
 
 type Props = {
   catalog: ReadonlyArray<CatalogProduct>;
   onAddLine: (line: LineItem) => void;
+  // Service mode shapes how much per-product detail surfaces in the
+  // browse list. Optional + defaults to "GUIDED" so the prop is a
+  // pure progressive enhancement.
+  serviceMode?: ServiceMode;
 };
 
 function formatCents(c: number): string {
   return `$${(c / 100).toFixed(2)}`;
 }
 
-export function ProductPicker({ catalog, onAddLine }: Props) {
+export function ProductPicker({ catalog, onAddLine, serviceMode }: Props) {
+  const express = serviceMode === "EXPRESS";
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [weightValue, setWeightValue] = useState("3.5");
@@ -129,14 +134,16 @@ export function ProductPicker({ catalog, onAddLine }: Props) {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="font-medium">{p.name}</div>
-                    <div className="text-xs text-ink-soft">
-                      {p.category}
-                      {p.strain ? ` · ${p.strain}` : ""}
-                      {p.brand ? ` · ${p.brand}` : ""}
-                      {p.adjustedThcPct !== null
-                        ? ` · ${p.adjustedThcPct.toFixed(1)}% THC`
-                        : ""}
-                    </div>
+                    {!express && (
+                      <div className="text-xs text-ink-soft">
+                        {p.category}
+                        {p.strain ? ` · ${p.strain}` : ""}
+                        {p.brand ? ` · ${p.brand}` : ""}
+                        {p.adjustedThcPct !== null
+                          ? ` · ${p.adjustedThcPct.toFixed(1)}% THC`
+                          : ""}
+                      </div>
+                    )}
                   </div>
                   <span className="font-mono text-xs text-ink-soft">{p.sku}</span>
                 </button>
