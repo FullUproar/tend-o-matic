@@ -4,6 +4,7 @@ const nextConfig = {
   transpilePackages: [
     "@tend-o-matic/auth-runtime",
     "@tend-o-matic/compliance",
+    "@tend-o-matic/compliance-monitor",
     "@tend-o-matic/db",
   ],
 };

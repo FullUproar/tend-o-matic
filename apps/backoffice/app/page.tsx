@@ -131,14 +131,18 @@ export default async function Page() {
             decrement automatically; voids restore.
           </p>
         </Link>
-        <div className="rounded-md border border-dashed border-kraft-300 bg-paper p-4 opacity-60">
-          <div className="font-display text-base font-semibold text-ink-soft">
-            Compliance alerts (M9)
+        <Link
+          href="/alerts"
+          className="rounded-md border border-kraft-300 bg-cream p-4 transition-colors hover:border-kraft-700"
+        >
+          <div className="font-display text-base font-semibold">
+            Compliance alerts
           </div>
           <p className="mt-1 text-xs text-ink-soft">
-            CRA / IDFPR source changes, draft rule release queue.
+            CRA / IDFPR / Metrc source watch. Vercel cron captures
+            snapshots daily; diffs surface here for review.
           </p>
-        </div>
+        </Link>
       </section>
     </BackofficeShell>
   );
