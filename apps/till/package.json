@@ -11,6 +11,10 @@
     "test": "echo 'no tests yet'"
   },
   "dependencies": {
+    "@prisma/client": "^5.18.0",
+    "@tend-o-matic/compliance": "workspace:*",
+    "@tend-o-matic/db": "workspace:*",
+    "@tend-o-matic/payments": "workspace:*",
     "next": "^14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
