@@ -11,3 +11,4 @@ Rules:
 ## Index
 
 - `manus-2026-05-13/` — initial multi-state compliance landscape research from Manus AI. Five files: monitoring sources, Indiana prohibition findings, Illinois compliance findings, Michigan compliance findings, and the overall landscape / monitoring strategy.
+- `manus-2026-05-13-round-2/` — second-round Manus research dated 2026-05-13 (delivered 2026-05-14), closing the equivalency / tax / receipt / returns / recalls / IN entity / vendor / monitoring gaps left by round-1. Five parts (`part_a_michigan.md` ... `part_e_monitoring_and_evidence_architecture.md`) plus raw CSV / JSON / scope inputs under `raw/`.
