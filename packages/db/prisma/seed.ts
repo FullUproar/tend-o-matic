@@ -15,12 +15,9 @@ const TENANT_SLUG = "demo-mi";
 const TENANT_LICENSE = "AU-R-000000";
 const LOCATION_LICENSE = "AU-R-000123";
 const CASHIER_EMAIL = "cashier@demo-mi.tend-o-matic.com";
-// Demo-only password. Production users get their password set via the
-// backoffice user-management UI (M5) which is the only path that
-// generates a bcrypt hash. The sentinel "DEV_SEED_NOT_FOR_PRODUCTION"
-// string is what the pre-M4 seed wrote — bcrypt-compare on that fails,
-// which is the desired behavior for any environment that never re-runs
-// the seed.
+const MANAGER_EMAIL = "manager@demo-mi.tend-o-matic.com";
+// Demo-only password (same for both demo users). Production users get
+// their password set via the backoffice user-management UI (M5).
 const DEMO_PASSWORD = process.env.DEMO_PASSWORD ?? "demopass";
 
 async function main() {
@@ -77,7 +74,20 @@ async function main() {
     },
   });
   console.log(`  cashier: ${cashier.id} (${cashier.email})`);
-  console.log(`  cashier password: ${DEMO_PASSWORD} (override via DEMO_PASSWORD env)`);
+
+  const manager = await prisma.user.upsert({
+    where: { tenantId_email: { tenantId: tenant.id, email: MANAGER_EMAIL } },
+    update: { passwordHash },
+    create: {
+      tenantId: tenant.id,
+      email: MANAGER_EMAIL,
+      passwordHash,
+      name: "Sample Manager",
+      role: "MANAGER",
+    },
+  });
+  console.log(`  manager: ${manager.id} (${manager.email})`);
+  console.log(`  password (both users): ${DEMO_PASSWORD} (override via DEMO_PASSWORD env)`);
 
   console.log("\nSeed identifiers (for till app .env / seed-aware code):");
   console.log(`  TENANT_ID=${tenant.id}`);

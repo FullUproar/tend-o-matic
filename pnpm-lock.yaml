@@ -14,9 +14,24 @@ importers:
 
   apps/backoffice:
     dependencies:
+      '@prisma/client':
+        specifier: ^5.18.0
+        version: 5.22.0(prisma@5.22.0)
+      '@tend-o-matic/auth-runtime':
+        specifier: workspace:*
+        version: link:../../packages/auth-runtime
+      '@tend-o-matic/compliance':
+        specifier: workspace:*
+        version: link:../../packages/compliance
+      '@tend-o-matic/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       next:
         specifier: ^14.2.5
         version: 14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next-auth:
+        specifier: 5.0.0-beta.20
+        version: 5.0.0-beta.20(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1

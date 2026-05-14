@@ -1,17 +1,29 @@
-export default function Page() {
+import { redirect } from "next/navigation";
+import { loadBackofficeIdentity } from "../lib/identity";
+import { BackofficeShell } from "../components/BackofficeShell";
+
+export const dynamic = "force-dynamic";
+
+export default async function Page() {
+  const r = await loadBackofficeIdentity();
+  if (!r.ok) {
+    if (r.reason === "UNAUTHENTICATED") redirect("/sign-in");
+    redirect("/forbidden");
+  }
   return (
-    <main className="min-h-screen bg-parchment text-ink">
-      <div className="mx-auto max-w-3xl p-8">
-        <header className="flex items-baseline gap-3 border-b-2 border-kraft-700 pb-4">
-          <span className="font-display text-3xl font-semibold tracking-wide text-mustard-500">
-            TEND-O-MATIC
-          </span>
-          <span className="font-script text-xl text-clay-500">backoffice</span>
-        </header>
-        <p className="mt-4 text-sm text-ink-soft">
-          Phase 0 scaffold. Manager and admin tools land here.
+    <BackofficeShell identity={r.identity} activeSection="dashboard">
+      <div className="max-w-3xl">
+        <h1 className="font-display text-2xl font-semibold">Dashboard</h1>
+        <p className="mt-2 text-sm text-ink-soft">
+          Welcome, {r.identity.userName}. The dashboard shows live KPIs in M5
+          (sales report, inventory health, refusal-rate metrics). For now,
+          head over to the{" "}
+          <a className="font-medium text-leaf-700 underline" href="/products">
+            Products
+          </a>{" "}
+          page to manage the catalog.
         </p>
       </div>
-    </main>
+    </BackofficeShell>
   );
 }
