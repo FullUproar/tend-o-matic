@@ -7,14 +7,16 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "echo 'lint: tbd'",
-    "test": "echo 'no tests yet'",
+    "test": "vitest run",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "devDependencies": {
+    "@types/node": "^20.14.10",
     "prisma": "^5.18.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   },
   "peerDependencies": {
     "@prisma/client": "^5.18.0"
