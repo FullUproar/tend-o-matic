@@ -200,6 +200,7 @@ export function TillShell({ identity, catalog }: Props) {
         <section className="space-y-4">
           <CartView
             cart={cart}
+            catalog={catalog}
             taxBreakdown={taxResult.ok ? taxResult.breakdown : null}
             taxRefusal={taxResult.ok ? null : taxResult.reason}
             onRemoveLine={onRemoveLine}

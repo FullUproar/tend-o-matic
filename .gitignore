@@ -15,3 +15,7 @@ coverage/
 .vercel
 next-env.d.ts
 .pnpm-store/
+# Playwright artifacts (test-results, html report, locally-captured screenshots)
+test-results/
+playwright-report/
+screenshots/
