@@ -7,7 +7,12 @@ export const LIMIT_DIMENSIONS = [
 ] as const;
 export type LimitDimension = (typeof LIMIT_DIMENSIONS)[number];
 
-export const LIMIT_WINDOWS = ["TRANSACTION", "DAY", "MONTH"] as const;
+export const LIMIT_WINDOWS = [
+  "TRANSACTION",
+  "DAY",
+  "FOURTEEN_DAYS",
+  "MONTH",
+] as const;
 export type LimitWindow = (typeof LIMIT_WINDOWS)[number];
 
 export type Limit = {

@@ -34,6 +34,32 @@ Manus research files are archived verbatim under `docs/sources/manus-2026-05-13/
 - [ ] Confirm operating entity formation jurisdiction (Indiana flag — see entity-risk doc).
 - [ ] Confirm launch partner identity and locality so local-tax encoding can be scoped.
 
+### Counsel review questions (introduced by round-2 / M1.1)
+
+These are interpretive calls the round-2 dossier (`docs/sources/manus-2026-05-13-round-2/`) raised when populating the equivalency table and medical limits. The encoded values remain `secondary-cite-only`; counsel signoff promotes them to `counsel-verified` or substitutes alternative interpretations.
+
+- [ ] **MI-Q1 (A1):** Do the MCL 333.26424 equivalency ratios (a MEDICAL marihuana act) govern MRTMA ADULT-USE transactions? Manus found no direct CRA/MRTMA cite confirming. **Largest single counsel question gating production.**
+- [ ] **MI-Q2 (A1):** Concentrate is NOT a "marihuana-infused product" in MCL 333.26424. Does it roll up to the 2.5 oz total at factor 1, or at a different ratio? Statute is silent; we encoded 1:1 conservatively.
+- [ ] **MI-Q3 (A3):** Day/month boundary semantics for medical limits — calendar day vs 24-hour rolling? Manus could not extract. Encoded calendar-DAY.
+- [ ] **MI-Q4 (A1):** INFUSED, TOPICAL `ProductCategory` are intentionally NOT mapped in the equivalency table because the equivalency ratio depends on FORM (solid 1:16 / gaseous 1:7 by mass / liquid 1:36 by fluid volume). Until the category enum is split or `LineItem` carries a `form` field, the kernel refuses these with `EQUIVALENCY_UNDEFINED`.
+- [ ] **IL-Q1 (B3):** June 2025 CROO doc states 21.3 g THC equivalency for vapes/concentrates against the 14-day cap; Sept 22 2025 CROO doc states 26.6 g. Encoded the newer value (26.6 g / 26,600 mg). Counsel must confirm which is current.
+- [ ] **IL-Q2 (B2):** "Cumulative" phrasing in CROO FAQs is ambiguous (per-category caps vs combined cap). Encoded as INDEPENDENT per-category caps, which is the standard CRTA reading.
+- [ ] **IL-Q3 (B2):** Package-level 100 mg THC and per-serving 10 mg THC caps are product-catalog validations, not cart-level. Will be enforced at product ingest in M3.
+
+### Status updates from M1.1 (2026-05-14)
+
+Round-2 (`manus-2026-05-13`) closed the equivalency, caregiver, and medical 14-day window TODOs:
+
+| Item | Old status | New status | Counsel-Q ref |
+|---|---|---|---|
+| MI category equivalency ratios (FLOWER, PRE_ROLL, CONCENTRATE, EDIBLE, IMMATURE_PLANT) | `todo` | `secondary-cite-only` | MI-Q1, MI-Q2 |
+| MI medical caregiver per-patient limits (2.5 oz + 12 plants per connected patient) | `todo` | `secondary-cite-only` (limit math in M1.2) | — |
+| IL adult-use per-category caps (encoded, equivalency table maps category → own dimension) | `secondary-cite-only` | (clarified — independent per-category, not roll-up) | IL-Q2 |
+| IL medical 14-day window limits (70.87 g flower / 26.6 g THC / 26.6 g concentrate) | `todo` | `secondary-cite-only` | IL-Q1 |
+| Equivalency provenance (both fixtures) | `todo` | `secondary-cite-only` | — |
+
+INFUSED, TOPICAL (MI), IMMATURE_PLANT (IL), and OTHER (both) remain unmapped — the kernel refuses these with `EQUIVALENCY_UNDEFINED` until the form-discriminator question (MI-Q4) is resolved.
+
 ## Jurisdiction coverage in v0.1
 
 - **Michigan (`MI`)** — launch target. Adult-use + medical (patient + caregiver) in scope.
@@ -77,11 +103,20 @@ Indiana (`IN`) is **not** a sales jurisdiction (prohibition state). It is refere
 
 ### Category equivalency ratios (MI)
 
-| Rule | Value | Status | Source chain |
-|---|---|---|---|
-| Equivalent-unit conversion for concentrate, edibles, infused product against the 2.5 oz transaction cap | TODO — Manus did not extract the equivalency math. The 15 g concentrate cap is explicit, but how non-flower categories roll into the 2.5 oz total needs primary rule text. | `todo` | — |
+Source: MCL 333.26424 (Michigan Medical Marihuana Act §4). The statute defines that 1 oz of usable marihuana is equivalent to 16 oz of solid marihuana-infused product, 7 g of gaseous marihuana-infused product, or 36 fl oz of liquid marihuana-infused product. Round-2 applies these to MRTMA adult-use transactions on the secondary-citation reading — see **MI-Q1** above.
 
-**This is one of the highest-risk TODOs.** Without verified equivalencies, the cart cannot correctly enforce the 2.5 oz cap for mixed-category transactions. The compliance kernel must refuse to evaluate mixed-category carts under an `IL`/`MI` ruleset until this is populated and `counsel-verified`.
+| Product category | Roll-up factor toward TOTAL_OUNCES | Category-specific dimension | Status | Source chain |
+|---|---|---|---|---|
+| FLOWER | 1 g flower = 1 g of "usable" | (none) | `secondary-cite-only` | manus-2026-05-13 → MCL 333.26424 |
+| PRE_ROLL | 1 g pre-roll = 1 g of "usable" | (none) | `secondary-cite-only` | manus-2026-05-13 → MCL 333.26424 |
+| CONCENTRATE | 1 g concentrate = 1 g (conservative, **MI-Q2**) | `CONCENTRATE_GRAMS` (15 g sub-cap) | `secondary-cite-only` | manus-2026-05-13 → R. 420.506 + MCL 333.26424 |
+| EDIBLE (solid infused) | 1 g edible = 1/16 g (factor 0.0625) | (none) | `secondary-cite-only` | manus-2026-05-13 → MCL 333.26424 |
+| IMMATURE_PLANT | 0 (no weight contribution) | `IMMATURE_PLANTS` (3 plant transaction cap) | `secondary-cite-only` | manus-2026-05-13 → R. 420.506 |
+| INFUSED | UNMAPPED — gaseous (1:7) vs liquid (1:36) need a `form` field | — | `todo` (counsel-Q4) | manus-2026-05-13 |
+| TOPICAL | UNMAPPED — statute silent on roll-up | — | `todo` (counsel-Q4) | — |
+| OTHER | UNMAPPED — never enabled by design | — | (never mapped) | — |
+
+Encoded in `packages/compliance/src/rulesets/mi-2026-05-14.ts`. The kernel refuses any line item whose `ProductCategory` is not in this table with `EQUIVALENCY_UNDEFINED`.
 
 ### Product eligibility (MI)
 
@@ -169,8 +204,26 @@ All TODO. CRA permitted discount mechanics, advertising-vs-in-store restrictions
 | Rule | Value | Status | Source chain |
 |---|---|---|---|
 | Patient allotment lookup | Available in Metrc, including purchases from other dispensaries | `secondary-cite-only` | manus-2026-05-13 → CROO seed-to-sale FAQ |
-| Per-day / per-month patient limits | TODO — Manus did not extract Illinois medical-specific limits | `todo` | — |
-| Caregiver rules | TODO | `todo` | — |
+| Patient usable-cannabis allotment | 2.5 oz (70.87 g) usable per **rolling 14 days** | `secondary-cite-only` | manus-2026-05-13 (round-2 B3) → 410 ILCS 130/10 |
+| Vape / concentrate THC equivalency | 26.6 g THC over rolling 14 days (per **2025-09-22 CROO**; June 2025 said 21.3 g — **IL-Q1**) | `secondary-cite-only` | manus-2026-05-13 (round-2 B3) → CROO "Medical Cannabis Limits, Explained" |
+| Concentrate equivalency | 26.6 g over rolling 14 days | `secondary-cite-only` | manus-2026-05-13 (round-2 B3) |
+| Per-day / per-month patient limits | n/a — IL medical uses a **rolling 14-day window**, not calendar day/month | (clarified) | manus-2026-05-13 (round-2 B3) |
+| Caregiver rules | Caregiver "assists no more than one patient"; full purchase mechanics for minor-patient flow still partial | `secondary-cite-only` (partial) | manus-2026-05-13 (round-2 B3) |
+
+### Category equivalency (IL)
+
+IL adult-use limits are **independent per-category** (no roll-up to total ounces); each category maps to its own LimitDimension. See **IL-Q2** for the "cumulative" phrasing ambiguity.
+
+| Product category | Mapped dimension | Notes | Source chain |
+|---|---|---|---|
+| FLOWER | `FLOWER_GRAMS` | Resident 30 g / non-resident 15 g per transaction | manus-2026-05-13 → 410 ILCS 705/10-10 |
+| PRE_ROLL | `FLOWER_GRAMS` | Same dimension as flower (weight in grams) | (same) |
+| CONCENTRATE | `CONCENTRATE_GRAMS` | Resident 5 g / non-resident 2.5 g | (same) |
+| INFUSED | `INFUSED_MG_THC` | Resident 500 mg / non-resident 250 mg per transaction. Package cap 100 mg THC, per-serving 10 mg THC (enforced at product ingest, M3 — **IL-Q3**) | (same) |
+| EDIBLE | `INFUSED_MG_THC` | Treated as infused for limit purposes | (same) |
+| TOPICAL | `INFUSED_MG_THC` | CRTA treats topicals as infused | (same) |
+| IMMATURE_PLANT | UNMAPPED — IL has no adult-use home grow | — | — |
+| OTHER | UNMAPPED — never enabled | — | — |
 
 ### Product eligibility (IL)
 

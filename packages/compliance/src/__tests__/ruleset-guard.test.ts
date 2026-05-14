@@ -123,8 +123,25 @@ describe("jurisdiction mismatch guard", () => {
 describe("equivalency guard", () => {
   const kernel = makeKernel({ requireRulesetStatus: "secondary-cite-only" });
 
-  it("refuses any line item because the MI fixture has no populated equivalencies", () => {
+  it("accepts FLOWER under the MI fixture (factor 1 → TOTAL_OUNCES)", () => {
     const r = kernel.applyLineItem(baseCartMI(), line({ category: "FLOWER" }));
+    expect(r.ok).toBe(true);
+  });
+
+  it("refuses INFUSED under the MI fixture (form discriminator required — counsel-Q4)", () => {
+    const r = kernel.applyLineItem(
+      baseCartMI(),
+      line({ category: "INFUSED", weight: { value: 5, unit: "G" } }),
+    );
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.reason.code).toBe("EQUIVALENCY_UNDEFINED");
+  });
+
+  it("refuses OTHER under both fixtures (never mapped by design)", () => {
+    const r = kernel.applyLineItem(
+      baseCartMI(),
+      line({ category: "OTHER", weight: { value: 1, unit: "G" } }),
+    );
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.reason.code).toBe("EQUIVALENCY_UNDEFINED");
   });
