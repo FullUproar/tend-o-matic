@@ -116,8 +116,13 @@ export async function completeSale(
     closedAt,
   );
 
-  // 2. Sale items. One INSERT per line to keep the raw SQL simple and
-  // the parameter shapes uniform.
+  // 2. Sale items + per-line package qty decrement. The decrement is
+  // in the same transaction as the sale_item insert; if either fails
+  // the whole sale rolls back (atomic with audit + metrc outbox).
+  // Decrement amount = weight_value × qty. If decrement would push qty
+  // below 0 the SQL raises a check-constraint-style error via
+  // `WHERE qty >= $decrement`; the UPDATE's row count goes to 0 and
+  // we throw a SaleWriteError explicitly so the caller sees it.
   for (const line of args.lines) {
     await tx.$executeRawUnsafe(
       `INSERT INTO sale_item (
@@ -139,6 +144,38 @@ export async function completeSale(
       line.equivalentGrams === null || line.equivalentGrams === undefined
         ? null
         : String(line.equivalentGrams),
+    );
+
+    // Decrement the package's qty by weightValue × qty. Conditional
+    // UPDATE refuses to go below zero. After the UPDATE, mark the
+    // package DEPLETED if qty hit exactly zero.
+    const decrement = line.weightValue * line.qty;
+    const rowsAffected = await tx.$executeRawUnsafe(
+      `UPDATE package
+         SET qty = qty - $1::decimal
+         WHERE id = $2::uuid
+           AND tenant_id = $3::uuid
+           AND status IN ('AVAILABLE', 'HOLD')
+           AND qty >= $1::decimal`,
+      String(decrement),
+      line.packageId,
+      args.tenantId,
+    );
+    if (rowsAffected === 0) {
+      throw new SaleWriteError(
+        `Package ${line.packageId} could not be decremented (insufficient qty or non-sellable status).`,
+      );
+    }
+    // Mark as DEPLETED if qty went to exactly zero.
+    await tx.$executeRawUnsafe(
+      `UPDATE package
+         SET status = 'DEPLETED'
+         WHERE id = $1::uuid
+           AND tenant_id = $2::uuid
+           AND qty = 0
+           AND status = 'AVAILABLE'`,
+      line.packageId,
+      args.tenantId,
     );
   }
 

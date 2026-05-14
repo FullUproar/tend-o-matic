@@ -53,7 +53,7 @@ function baseArgs(over: Partial<CompleteSaleArgs> = {}): CompleteSaleArgs {
 }
 
 describe("completeSale — happy path", () => {
-  it("issues 5 INSERTs in order: sale, sale_item × N, payment × M, audit_log, metrc_outbox", async () => {
+  it("emits sale + per-line sale_item + qty-decrement + payment + audit + metrc_outbox writes", async () => {
     const tx = new MockTx();
     const args = baseArgs({
       lines: [
@@ -71,15 +71,41 @@ describe("completeSale — happy path", () => {
     expect(r.auditLogId).toMatch(/^[0-9a-f-]{36}$/);
     expect(r.metrcOutboxId).toMatch(/^[0-9a-f-]{36}$/);
 
-    // 1 sale + 2 sale_items + 2 payments + 1 audit_log + 1 metrc_outbox = 7
-    expect(tx.calls.length).toBe(7);
-    expect(tx.calls[0]!.sql).toMatch(/INSERT INTO sale\b/);
-    expect(tx.calls[1]!.sql).toMatch(/INSERT INTO sale_item/);
-    expect(tx.calls[2]!.sql).toMatch(/INSERT INTO sale_item/);
-    expect(tx.calls[3]!.sql).toMatch(/INSERT INTO payment/);
-    expect(tx.calls[4]!.sql).toMatch(/INSERT INTO payment/);
-    expect(tx.calls[5]!.sql).toMatch(/INSERT INTO audit_log/);
-    expect(tx.calls[6]!.sql).toMatch(/INSERT INTO metrc_outbox/);
+    // Per line: 1 INSERT sale_item + 1 UPDATE package (decrement) +
+    // 1 UPDATE package (depleted-flip). Plus 1 sale, 2 payments, 1 audit,
+    // 1 metrc_outbox. 2 lines × 3 = 6, total = 6 + 5 = 11.
+    const summary = tx.calls.map((c) => c.sql.split(/\s+/).slice(0, 3).join(" "));
+    expect(summary).toEqual([
+      "INSERT INTO sale",
+      "INSERT INTO sale_item",
+      "UPDATE package SET",
+      "UPDATE package SET",
+      "INSERT INTO sale_item",
+      "UPDATE package SET",
+      "UPDATE package SET",
+      "INSERT INTO payment",
+      "INSERT INTO payment",
+      "INSERT INTO audit_log",
+      "INSERT INTO metrc_outbox",
+    ]);
+  });
+
+  it("refuses to write the sale if package decrement returns 0 rows (insufficient qty)", async () => {
+    class MockTxNoStock extends MockTx {
+      override async $executeRawUnsafe(
+        query: string,
+        ...values: unknown[]
+      ): Promise<number> {
+        this.calls.push({ sql: query, params: values });
+        // Simulate insufficient-stock on the qty-decrement UPDATE
+        if (/UPDATE package\s+SET qty/.test(query)) return 0;
+        return 1;
+      }
+    }
+    const tx = new MockTxNoStock();
+    await expect(
+      completeSale(tx as unknown as SaleWriterTx, baseArgs()),
+    ).rejects.toThrow(/could not be decremented/);
   });
 
   it("uses the supplied saleId for idempotency when provided", async () => {

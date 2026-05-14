@@ -4,13 +4,19 @@ import { signOutAction } from "../app/actions";
 
 type Props = {
   identity: BackofficeIdentity;
-  activeSection: "dashboard" | "products" | "sales" | "settings";
+  activeSection:
+    | "dashboard"
+    | "products"
+    | "inventory"
+    | "sales"
+    | "settings";
   children: React.ReactNode;
 };
 
 const NAV: Array<{ href: string; label: string; section: Props["activeSection"] }> = [
   { href: "/", label: "Dashboard", section: "dashboard" },
   { href: "/products", label: "Products", section: "products" },
+  { href: "/inventory", label: "Inventory", section: "inventory" },
   { href: "/sales", label: "Sales", section: "sales" },
   { href: "/settings", label: "Settings", section: "settings" },
 ];
