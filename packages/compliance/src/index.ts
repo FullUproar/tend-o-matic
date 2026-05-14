@@ -16,4 +16,5 @@ export * from "./promo";
 export * from "./kernel";
 export * from "./limit-math";
 export * from "./tax-engine";
+export * from "./cart-reducer";
 export * from "./rulesets";
