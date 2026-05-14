@@ -3,3 +3,4 @@ export * from "./id-reader";
 export * from "./printer";
 export * from "./drawer";
 export * from "./scale";
+export * from "./esc-pos-encoder";

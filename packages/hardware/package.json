@@ -7,9 +7,14 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "echo 'lint: tbd'",
-    "test": "echo 'no tests yet'"
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tend-o-matic/compliance": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.5.4"
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   }
 }

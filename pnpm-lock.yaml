@@ -240,10 +240,20 @@ importers:
         version: 2.1.9(@types/node@20.19.41)
 
   packages/hardware:
+    dependencies:
+      '@tend-o-matic/compliance':
+        specifier: workspace:*
+        version: link:../compliance
     devDependencies:
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.19.41
       typescript:
         specifier: ^5.5.4
         version: 5.9.3
+      vitest:
+        specifier: ^2.0.5
+        version: 2.1.9(@types/node@20.19.41)
 
   packages/metrc:
     devDependencies:
