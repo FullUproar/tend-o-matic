@@ -102,7 +102,7 @@ describe("jurisdiction mismatch guard", () => {
   it("property: every IL customer is refused under the MI ruleset", () => {
     fc.assert(
       fc.property(
-        fc.constantFrom<CustomerType["kind"]>(
+        fc.constantFrom<"IL_ADULT_USE_RESIDENT" | "IL_ADULT_USE_NONRESIDENT">(
           "IL_ADULT_USE_RESIDENT",
           "IL_ADULT_USE_NONRESIDENT",
         ),

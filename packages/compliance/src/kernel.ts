@@ -5,7 +5,7 @@ import type { RefusalReason } from "./refusal";
 import type { TaxBreakdown } from "./tax";
 import type { ReceiptContent } from "./receipt";
 import type { Promo, PromoValidation } from "./promo";
-import { meetsThreshold, type VerificationStatus } from "./provenance";
+import { meetsThreshold, type VerificationStatus, type Provenance } from "./provenance";
 import { customerJurisdiction } from "./customer";
 import { lowestStatus } from "./provenance";
 
@@ -40,15 +40,20 @@ export interface ComplianceKernel {
   validatePromo(cart: Cart, promo: Promo): PromoValidation;
 }
 
-// rulesetEffectiveStatus returns the weakest provenance status across all
-// rule blocks inside a ruleset — the kernel uses this to gate loading.
+// rulesetEffectiveStatus returns the weakest provenance status across the
+// rule blocks whose values would actually be applied. An empty block
+// contributes no values; its trustworthiness is moot and is instead
+// gated per-operation (e.g. EQUIVALENCY_UNDEFINED at line-apply time).
 export function rulesetEffectiveStatus(r: Ruleset): VerificationStatus {
-  return lowestStatus([
+  const provenances: Provenance[] = [
     r.provenance,
     r.adultUseMinAge.provenance,
     r.limitsProvenance,
-    r.equivalenciesProvenance,
-  ]);
+  ];
+  if (Object.keys(r.equivalencies).length > 0) {
+    provenances.push(r.equivalenciesProvenance);
+  }
+  return lowestStatus(provenances);
 }
 
 function guardRuleset(r: Ruleset, env: KernelEnv): RefusalReason | null {
