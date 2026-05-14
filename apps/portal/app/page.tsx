@@ -1,24 +1,48 @@
+import Link from "next/link";
+import { Hero } from "./_landing/Hero";
+import { BudtenderSection } from "./_landing/BudtenderSection";
+import { ComplianceSection } from "./_landing/ComplianceSection";
+import { ScreenshotStrip } from "./_landing/ScreenshotStrip";
+import { HonestStatus } from "./_landing/HonestStatus";
+import { DemoForm } from "./_landing/DemoForm";
+import { SiteHeader } from "./_landing/SiteHeader";
+import { SiteFooter } from "./_landing/SiteFooter";
+
 export default function Page() {
-  // Portal leans harder into the brand chrome than the till does —
-  // legibility under high-throughput use is less constrained here.
   return (
-    <main className="min-h-screen bg-kraft-700 text-cream">
-      <div className="mx-auto max-w-3xl p-8">
-        <header className="rounded-sm border-2 border-mustard-400 bg-kraft-900 p-6 text-center">
-          <div className="font-display text-4xl font-bold tracking-widest text-mustard-400">
-            TEND·O·MATIC
+    <main className="min-h-screen bg-parchment text-ink">
+      <SiteHeader />
+      <Hero />
+      <BudtenderSection />
+      <ComplianceSection />
+      <ScreenshotStrip />
+      <HonestStatus />
+      <section id="demo" className="border-t-2 border-kraft-300 bg-cream">
+        <div className="mx-auto max-w-3xl px-6 py-16">
+          <div className="text-center">
+            <h2 className="font-display text-3xl font-bold text-ink">
+              See it run on your floor
+            </h2>
+            <p className="mt-3 text-ink-soft">
+              Twenty minutes. Real till. Real headroom math. We&rsquo;ll bring
+              the receipt printer.
+            </p>
           </div>
-          <div className="mt-1 font-script text-2xl text-clay-300">
-            point of sale
+          <div className="mt-8">
+            <DemoForm />
           </div>
-          <div className="mt-3 text-[10px] uppercase tracking-[0.3em] text-cream/70">
-            Est. 2026 · Dispensary Systems
-          </div>
-        </header>
-        <p className="mt-6 text-sm text-cream/80">
-          Phase 0 scaffold. Super-admin and tenant onboarding land here.
-        </p>
-      </div>
+          <p className="mt-6 text-center text-xs text-ink-soft">
+            Already onboarded?{" "}
+            <Link
+              href="https://till.tend-o-matic.com"
+              className="underline hover:text-ink"
+            >
+              Sign in to the till →
+            </Link>
+          </p>
+        </div>
+      </section>
+      <SiteFooter />
     </main>
   );
 }
