@@ -202,6 +202,34 @@ Each milestone delivers a user-visible capability. PRs within a milestone may me
 | Banking active | Real cash flows; banking compliance per round-2 C1. |
 | First real sale | Champagne. |
 
+### M12 — Budtender excellence layer (post-cutover)
+
+**Capability:** The till feels like the budtender's preferred tool, not
+just the operator's compliant one. Derived from the 2026-05-14 Manus
+budtender research brief; full feature mapping in
+[docs/budtender-rockstar-plan.md](budtender-rockstar-plan.md).
+
+| PR | Scope |
+|---|---|
+| M12.1 | Customer memory panel: purchase history, like/dislike tags, preferred format / budget / cadence. Schema additions on `Customer`. Pull-to-load history UI in till. |
+| M12.2 | Product intelligence panel: terpenes, cannabinoids beyond THC, lineage, onset/duration, plain-English effect summary. Product-data ingestion strategy + LLM-backed natural-language search behind a flag. |
+| M12.3 | Substitute / refusal-recovery finder. Same engine drives out-of-stock substitution and limit-blocked alternatives. Ranks by category, price band, effect profile, potency band, inventory availability. |
+| M12.4 | Practice-mode UX layer. Beyond the existing tenant `training: true` flag, build guided drills (ID-check, purchase-limit, return-flow), SOP sign-offs, manager-visible training completion. |
+| M12.5 | Responsible-guidance guardrails. First-class copy module + UI guards. No diagnosis prompts; "consult clinician" suggestion on medical-sensitive service mode; cannabinoid serving-size primer. |
+
+**DoD:** A Michigan budtender on day one feels at least as confident as a
+six-month-tenure budtender on a competing POS. Validated by post-launch
+interviews with launch-partner staff.
+
+**Why post-cutover:** MVP definition is "one MI store running real sales".
+These features make the till more *appealing* but don't gate that bar.
+Live-tenant data also feeds the customer-memory and substitute-finder
+quality.
+
+**Pre-build validation:** the
+[interview script in the brief](sources/manus-budtender-2026-05-14/research-brief.md#interview-questions-to-validate-in-michigan-and-illinois)
+should run against 10–15 MI budtenders/managers before M12 starts.
+
 ## 5. First execution slice
 
 Starting on **M1.1 (MI + IL equivalency tables)** immediately after this doc is approved. Reasoning:
@@ -239,4 +267,6 @@ Subsequent slices follow the M1 → M2 → ... order, with M3-M9 milestones para
 - [docs/indiana-entity-risk.md](indiana-entity-risk.md) — IN posture (round-2 part C feeds this)
 - [docs/compliance-monitoring.md](compliance-monitoring.md) — monitor design (M9 implements)
 - [docs/sources/manus-2026-05-13-round-2/](tendomatic_round2_compliance_dossier/) — Manus 2026-05-13 research (input to M1)
+- [docs/sources/manus-budtender-2026-05-14/research-brief.md](sources/manus-budtender-2026-05-14/research-brief.md) — Manus 2026-05-14 budtender-excellence research (input to M12)
+- [docs/budtender-rockstar-plan.md](budtender-rockstar-plan.md) — synthesis mapping budtender research to features + near-term sequence
 - FUP architectural reference (do not copy code): `C:\dev\Full Uproar Platform\ops-afterroar-store\`, `\afterroar-mobile\`, `\full-uproar-site\`. Patterns mirrored: immutable ledger, provider interfaces, event-sourced offline sync, training mode flag, reconciliation queue.
