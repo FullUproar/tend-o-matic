@@ -18,12 +18,12 @@ import { CartView } from "./CartView";
 import { RefusalBanner } from "./RefusalBanner";
 import { TenderEntry } from "./TenderEntry";
 import { ReceiptPreview } from "./ReceiptPreview";
-import type { SeedIdentity } from "../lib/identity";
-import { completeSaleAction } from "../app/actions";
+import type { SessionIdentity } from "../lib/identity";
+import { completeSaleAction, signOutAction } from "../app/actions";
 import { refusalToText } from "../lib/refusal-text";
 
 type Props = {
-  identity: SeedIdentity;
+  identity: SessionIdentity;
 };
 
 const kernel = makeKernel({ requireRulesetStatus: "secondary-cite-only" });
@@ -94,9 +94,6 @@ export function TillShell({ identity }: Props) {
     setServerError(null);
     startTransition(async () => {
       const response = await completeSaleAction({
-        tenantId: identity.tenantId,
-        locationId: identity.locationId,
-        cashierUserId: identity.cashierUserId,
         customer: cart.customer,
         rulesetVersion: cart.ruleset.version,
         idVerified: cart.idVerified,
@@ -142,12 +139,24 @@ export function TillShell({ identity }: Props) {
             </span>
             <span className="font-script text-lg text-clay-500">till</span>
           </div>
-          <div className="text-right text-xs">
-            <div className="font-medium">{identity.tenantName}</div>
-            <div className="text-ink-soft">
-              {identity.locationName} · {identity.locationLicense}
+          <div className="flex items-center gap-4 text-right text-xs">
+            <div>
+              <div className="font-medium">{identity.tenantName}</div>
+              <div className="text-ink-soft">
+                {identity.locationName} · {identity.locationLicense}
+              </div>
+              <div className="text-ink-soft">
+                {identity.cashierName} · {identity.cashierRole.toLowerCase()}
+              </div>
             </div>
-            <div className="text-ink-soft">Cashier: {identity.cashierName}</div>
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                className="rounded-sm border border-kraft-300 px-3 py-1 text-xs text-ink-soft hover:border-kraft-500 hover:text-ink"
+              >
+                Sign out
+              </button>
+            </form>
           </div>
         </div>
       </header>

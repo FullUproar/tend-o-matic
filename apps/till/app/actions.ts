@@ -2,6 +2,11 @@
 
 import { PrismaClient } from "@prisma/client";
 import { randomUUID } from "node:crypto";
+import { auth, signOut } from "../lib/auth";
+
+export async function signOutAction() {
+  await signOut({ redirectTo: "/sign-in" });
+}
 import {
   makeKernel,
   openCart,
@@ -30,10 +35,10 @@ function rulesetFor(version: string): Ruleset {
   throw new Error(`Unknown ruleset version: ${version}`);
 }
 
+// CompleteSaleInput intentionally omits tenantId/locationId/cashierUserId
+// — those come from the session inside the action. Trusting the client to
+// supply them would defeat tenant isolation.
 export type CompleteSaleInput = {
-  tenantId: string;
-  locationId: string;
-  cashierUserId: string;
   customer: CustomerType;
   rulesetVersion: string;
   idVerified: boolean;
@@ -100,6 +105,19 @@ async function ensureDemoPackage(
 export async function completeSaleAction(
   input: CompleteSaleInput,
 ): Promise<CompleteSaleResponse> {
+  // 0. Session-driven identity. Client never gets to spoof tenantId or
+  // cashierUserId; both come from the signed-in user.
+  const session = await auth();
+  if (!session?.user) {
+    return { ok: false, reason: "Not signed in." };
+  }
+  const tenantId = session.user.tenantId;
+  const cashierUserId = session.user.id;
+  const locationId = session.user.locationId;
+  if (!locationId) {
+    return { ok: false, reason: "Session has no location assigned." };
+  }
+
   // 1. Server-side re-validation: rebuild the cart from scratch and run
   // every line through the kernel. Client can't be trusted to have
   // honored the refusal codes.
@@ -107,8 +125,8 @@ export async function completeSaleAction(
   const kernel = makeKernel({ requireRulesetStatus: "secondary-cite-only" });
 
   let cart = openCart({
-    tenantId: input.tenantId,
-    locationId: input.locationId,
+    tenantId,
+    locationId,
     customer: input.customer,
     ruleset,
     idVerified: input.idVerified,
@@ -154,8 +172,8 @@ export async function completeSaleAction(
     const key = `${line.category}|${line.weight.unit}`;
     if (!packageIdByCategory.has(key)) {
       const pkgId = await ensureDemoPackage(
-        input.tenantId,
-        input.locationId,
+        tenantId,
+        locationId,
         line.category,
         line.weight.unit,
       );
@@ -166,11 +184,11 @@ export async function completeSaleAction(
   // 5. Atomic sale write: withTenant pins the GUC, completeSale issues
   // the 5 INSERTs (sale, sale_item × N, payment, audit_log, metrc_outbox).
   const saleId = randomUUID();
-  await withTenant(prisma, input.tenantId, async (tx) => {
+  await withTenant(prisma, tenantId, async (tx) => {
     await completeSale(tx as SaleWriterTx, {
-      tenantId: input.tenantId,
-      locationId: input.locationId,
-      cashierUserId: input.cashierUserId,
+      tenantId,
+      locationId,
+      cashierUserId,
       customerId: null, // M2.5c doesn't persist customer rows yet
       customerKindAtSale: input.customer.kind,
       rulesetVersion: input.rulesetVersion,
@@ -195,19 +213,51 @@ export async function completeSaleAction(
     });
   });
 
-  // 6. Render receipt for the till to display.
+  // 6. Render receipt for the till to display. Store/location info
+  // pulled from the tenant + location rows so the receipt always matches
+  // the signed-in session's actual tenant.
+  const [tenantRow, locationRow] = await Promise.all([
+    prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { name: true, licenseNo: true },
+    }),
+    prisma.location.findUnique({
+      where: { id: locationId },
+      select: {
+        name: true,
+        licenseNo: true,
+        addressLine1: true,
+        addressLine2: true,
+        city: true,
+        state: true,
+        postalCode: true,
+      },
+    }),
+  ]);
+  const userRow = await prisma.user.findUnique({
+    where: { id: cashierUserId },
+    select: { name: true, email: true },
+  });
+  const addressLines = [
+    locationRow?.addressLine1,
+    locationRow?.addressLine2,
+    [locationRow?.city, locationRow?.state, locationRow?.postalCode]
+      .filter(Boolean)
+      .join(", "),
+  ].filter((s): s is string => Boolean(s));
+
   const renderResult = renderReceipt(cart, tax, {
     store: {
-      name: "Demo MI Dispensary",
-      address: ["123 Main St", "Ann Arbor, MI 48104"],
-      licenseNumber: "AU-R-000123",
+      name: tenantRow?.name ?? "Unknown tenant",
+      address: addressLines.length > 0 ? addressLines : ["(no address)"],
+      licenseNumber: locationRow?.licenseNo ?? tenantRow?.licenseNo ?? "(none)",
     },
     sale: {
       id: saleId,
       receiptId: saleId.slice(0, 8).toUpperCase(),
       completedAt: new Date().toISOString(),
-      cashierName: "Sample Cashier",
-      cashierUserId: input.cashierUserId,
+      cashierName: userRow?.name ?? userRow?.email ?? "Cashier",
+      cashierUserId,
     },
     tenders: [{ tenderType: "CASH", amountCents: tax.grandTotalCents }],
     changeDueCents,

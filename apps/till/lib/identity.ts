@@ -1,16 +1,17 @@
-// Server-only seed-identity loader. Reads the demo cashier/location/
-// tenant that packages/db/prisma/seed.ts wrote, by stable natural keys.
-// Real auth (M4) replaces this with a session callback.
+// Server-side session identity loader. Replaces the M2.5b seed
+// shortcut: now reads the NextAuth session for the signed-in cashier
+// and joins to the tenant + location rows for display fields.
+//
+// Returns null when no session is present; the page redirects to
+// /sign-in in that case.
 
 import "server-only";
 import { PrismaClient } from "@prisma/client";
-
-const TENANT_SLUG = "demo-mi";
-const CASHIER_EMAIL = "cashier@demo-mi.tend-o-matic.com";
+import { auth } from "./auth";
 
 const prisma = new PrismaClient();
 
-export type SeedIdentity = {
+export type SessionIdentity = {
   tenantId: string;
   tenantName: string;
   tenantTraining: boolean;
@@ -19,40 +20,50 @@ export type SeedIdentity = {
   locationLicense: string;
   cashierUserId: string;
   cashierName: string;
+  cashierRole: "BUDTENDER" | "MANAGER" | "ADMIN";
 };
 
-export async function loadSeedIdentity(): Promise<SeedIdentity> {
-  const tenant = await prisma.tenant.findUnique({
-    where: { slug: TENANT_SLUG },
-  });
-  if (!tenant) {
+export async function loadSessionIdentity(): Promise<SessionIdentity | null> {
+  const session = await auth();
+  if (!session?.user) return null;
+  const { tenantId, locationId, id: userId, role } = session.user;
+  if (!locationId) {
     throw new Error(
-      `Seed identity missing. Run: pnpm --filter @tend-o-matic/db seed`,
+      `User ${userId} has no location assigned. M4.3 device registration will resolve this; for now, ensure the tenant has at least one Location row.`,
     );
   }
-  const location = await prisma.location.findFirst({
-    where: { tenantId: tenant.id },
-    orderBy: { createdAt: "asc" },
-  });
-  if (!location) {
-    throw new Error("Seed identity is missing a location row");
-  }
-  const cashier = await prisma.user.findUnique({
-    where: { tenantId_email: { tenantId: tenant.id, email: CASHIER_EMAIL } },
-  });
-  if (!cashier) {
-    throw new Error("Seed identity is missing the cashier user row");
+
+  const [tenant, location, user] = await Promise.all([
+    prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { name: true, featureFlags: true },
+    }),
+    prisma.location.findUnique({
+      where: { id: locationId },
+      select: { name: true, licenseNo: true },
+    }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true },
+    }),
+  ]);
+
+  if (!tenant || !location || !user) {
+    throw new Error(
+      `Session references missing rows (tenant=${!!tenant} location=${!!location} user=${!!user}).`,
+    );
   }
 
   const flags = (tenant.featureFlags ?? {}) as Record<string, unknown>;
   return {
-    tenantId: tenant.id,
+    tenantId,
     tenantName: tenant.name,
     tenantTraining: Boolean(flags.training),
-    locationId: location.id,
+    locationId,
     locationName: location.name,
     locationLicense: location.licenseNo,
-    cashierUserId: cashier.id,
-    cashierName: cashier.name ?? cashier.email,
+    cashierUserId: userId,
+    cashierName: user.name ?? user.email,
+    cashierRole: role,
   };
 }
