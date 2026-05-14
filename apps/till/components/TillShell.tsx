@@ -15,6 +15,7 @@ import {
 import { CustomerSelector } from "./CustomerSelector";
 import { ProductPicker } from "./ProductPicker";
 import { CartView } from "./CartView";
+import { HeadroomBar } from "./HeadroomBar";
 import { RefusalBanner } from "./RefusalBanner";
 import { TenderEntry } from "./TenderEntry";
 import { ReceiptPreview } from "./ReceiptPreview";
@@ -198,6 +199,7 @@ export function TillShell({ identity, catalog }: Props) {
         </section>
 
         <section className="space-y-4">
+          {!completedSale && <HeadroomBar cart={cart} />}
           <CartView
             cart={cart}
             catalog={catalog}

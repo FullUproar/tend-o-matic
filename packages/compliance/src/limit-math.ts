@@ -1,5 +1,5 @@
 import type { Cart, LineItem } from "./cart";
-import type { Limit, LimitDimension } from "./limit";
+import type { Limit, LimitDimension, LimitWindow } from "./limit";
 import type { CategoryEquivalency, EquivalencyTable } from "./equivalency";
 import type { RefusalReason } from "./refusal";
 import type { CustomerKind } from "./customer";
@@ -155,4 +155,58 @@ export function checkTransactionLimits(
     }
   }
   return null;
+}
+
+// Live headroom across every applicable limit for a customer. The till
+// renders this so the cashier can see "1.7 oz of 2.5 oz used — 0.8 oz
+// remaining" in real time and pace the cart accordingly.
+//
+// TRANSACTION-window entries return real numbers from the in-progress
+// cart. Non-transaction windows (DAY, MONTH, FOURTEEN_DAYS) return
+// `priorUsageNeeded: true` because the prior-usage signal isn't threaded
+// into the kernel yet (medical sales currently refuse universally for
+// the same reason).
+export type LimitHeadroom = {
+  dimension: LimitDimension;
+  window: LimitWindow;
+  max: number;
+  used: number;
+  remaining: number;
+  // 0..1+. > 1 means the cart is already over the cap (kernel would
+  // have refused before reaching this state for TRANSACTION limits;
+  // possible for non-transaction windows once priorUsage threading
+  // exists).
+  percentUsed: number;
+  // True when this window's headroom is computed from cart contents
+  // alone; false when prior-usage history would be required.
+  fromCartOnly: boolean;
+  // True when the kernel doesn't yet evaluate this window. UI should
+  // render the limit but explain that day/month enforcement is pending.
+  priorUsageNeeded: boolean;
+};
+
+export function cartHeadroom(cart: Cart): ReadonlyArray<LimitHeadroom> {
+  const limits = cart.ruleset.limitsByCustomerKind[cart.customer.kind] ?? [];
+  if (limits.length === 0) return [];
+  // Reuse the existing contribution math for the in-cart usage portion.
+  const contrib = cartContributions(cart, null);
+  const cartTotals: Map<LimitDimension, number> = contrib.ok
+    ? contrib.totals
+    : new Map();
+  return limits.map((limit) => {
+    const isTransaction = limit.window === "TRANSACTION";
+    const used = isTransaction ? cartTotals.get(limit.dimension) ?? 0 : 0;
+    const remaining = Math.max(0, limit.max - used);
+    const percentUsed = limit.max > 0 ? used / limit.max : 0;
+    return {
+      dimension: limit.dimension,
+      window: limit.window,
+      max: limit.max,
+      used,
+      remaining,
+      percentUsed,
+      fromCartOnly: isTransaction,
+      priorUsageNeeded: !isTransaction,
+    };
+  });
 }
