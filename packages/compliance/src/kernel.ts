@@ -8,6 +8,11 @@ import type { Promo, PromoValidation } from "./promo";
 import { meetsThreshold, type VerificationStatus, type Provenance } from "./provenance";
 import { customerJurisdiction } from "./customer";
 import { lowestStatus } from "./provenance";
+import {
+  cartContributions,
+  checkTransactionLimits,
+  findUnimplementedWindow,
+} from "./limit-math";
 
 export type ApplyResult =
   | { ok: true; cart: Cart }
@@ -133,14 +138,35 @@ export function makeKernel(env: KernelEnv): ComplianceKernel {
         };
       }
 
-      // Limit math intentionally not implemented in v0.1. Until then,
-      // applying a line item that would otherwise be eligible succeeds
-      // only in environments where limit-math gates are inactive
-      // ("secondary-cite-only"). In production (counsel-verified), the
-      // guardRuleset call above prevents reaching this point with rules
-      // that lack counsel-verified limit math — because the limits
-      // block carries its own provenance and would lower the effective
-      // status below threshold.
+      // Limit math: M1.2 implements TRANSACTION-window limits only.
+      // Customers whose applicable limits include any non-TRANSACTION
+      // window (DAY, MONTH, FOURTEEN_DAYS) refuse with a clear code
+      // until a future PR threads PriorUsage into the kernel.
+      const unimplemented = findUnimplementedWindow(
+        cart.customer.kind,
+        cart.ruleset,
+      );
+      if (unimplemented) {
+        return {
+          ok: false,
+          reason: {
+            code: "LIMIT_WINDOW_NOT_IMPLEMENTED",
+            dimension: unimplemented.dimension,
+            window: unimplemented.window,
+          },
+        };
+      }
+
+      const contrib = cartContributions(cart, item);
+      if (!contrib.ok) return { ok: false, reason: contrib.reason };
+
+      const exceeded = checkTransactionLimits(
+        cart.customer.kind,
+        cart.ruleset,
+        contrib.totals,
+      );
+      if (exceeded) return { ok: false, reason: exceeded };
+
       return {
         ok: true,
         cart: { ...cart, lines: [...cart.lines, item] },
@@ -150,11 +176,39 @@ export function makeKernel(env: KernelEnv): ComplianceKernel {
     checkLimits(cart) {
       const ruleGuard = guardRuleset(cart.ruleset, env);
       if (ruleGuard) return { ok: false, reason: ruleGuard };
-      // Stub: limit math depends on counsel-verified equivalencies +
-      // limits. Returns empty status array under sufficient verification;
-      // refuses under insufficient. Real implementation lands in PR-N
-      // when counsel signs the dossier.
-      return { ok: true, statuses: [] };
+
+      const unimplemented = findUnimplementedWindow(
+        cart.customer.kind,
+        cart.ruleset,
+      );
+      if (unimplemented) {
+        return {
+          ok: false,
+          reason: {
+            code: "LIMIT_WINDOW_NOT_IMPLEMENTED",
+            dimension: unimplemented.dimension,
+            window: unimplemented.window,
+          },
+        };
+      }
+
+      const contrib = cartContributions(cart, null);
+      if (!contrib.ok) return { ok: false, reason: contrib.reason };
+
+      const applicable = cart.ruleset.limitsByCustomerKind[cart.customer.kind] ?? [];
+      const statuses: LimitStatus[] = [];
+      for (const limit of applicable) {
+        if (limit.window !== "TRANSACTION") continue;
+        const used = contrib.totals.get(limit.dimension) ?? 0;
+        statuses.push({
+          dimension: limit.dimension,
+          window: limit.window,
+          used,
+          max: limit.max,
+          remaining: Math.max(0, limit.max - used),
+        });
+      }
+      return { ok: true, statuses };
     },
 
     computeTaxes(cart) {

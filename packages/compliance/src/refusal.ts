@@ -31,6 +31,29 @@ export type RefusalReason =
       code: "JURISDICTION_MISMATCH";
       customerJurisdiction: string;
       rulesetJurisdiction: string;
+    }
+  | {
+      // Limit math for windows other than TRANSACTION (DAY, MONTH,
+      // FOURTEEN_DAYS) requires prior-usage history that the kernel does
+      // not yet accept. Until a PR adds the PriorUsage input, the kernel
+      // refuses any cart whose applicable limits include a non-
+      // TRANSACTION window.
+      code: "LIMIT_WINDOW_NOT_IMPLEMENTED";
+      dimension: LimitDimension;
+      window: LimitWindow;
+    }
+  | {
+      // A LineItem's weight unit doesn't match what the kernel needs to
+      // route the contribution into the relevant LimitDimension. Example:
+      // an INFUSED line item under the IL ruleset is tracked under
+      // INFUSED_MG_THC and therefore requires a MG_THC weight; supplying
+      // grams there is a refusal. The application surfaces this as
+      // "product weight unit doesn't match jurisdiction's tracking
+      // dimension".
+      code: "WEIGHT_UNIT_INCOMPATIBLE";
+      packageId: string;
+      providedUnit: string;
+      expectedUnit: string;
     };
 
 export type RefusalCode = RefusalReason["code"];
