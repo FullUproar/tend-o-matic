@@ -5,6 +5,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
+    "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'lint: tbd'",
     "test": "vitest run",
