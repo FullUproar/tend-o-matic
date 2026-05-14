@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import {
   makeKernel,
   openCart,
@@ -16,7 +16,11 @@ import { CustomerSelector } from "./CustomerSelector";
 import { LineEntry } from "./LineEntry";
 import { CartView } from "./CartView";
 import { RefusalBanner } from "./RefusalBanner";
+import { TenderEntry } from "./TenderEntry";
+import { ReceiptPreview } from "./ReceiptPreview";
 import type { SeedIdentity } from "../lib/identity";
+import { completeSaleAction } from "../app/actions";
+import { refusalToText } from "../lib/refusal-text";
 
 type Props = {
   identity: SeedIdentity;
@@ -24,22 +28,29 @@ type Props = {
 
 const kernel = makeKernel({ requireRulesetStatus: "secondary-cite-only" });
 
-export function TillShell({ identity }: Props) {
-  const initialCart = useMemo(
-    () =>
-      openCart({
-        tenantId: identity.tenantId,
-        locationId: identity.locationId,
-        customer: { kind: "MI_ADULT_USE" },
-        ruleset: MI_2026_05_14,
-      }),
-    [identity.tenantId, identity.locationId],
-  );
+type CompletedSale = {
+  saleId: string;
+  receiptText: string;
+  changeDueCents: number;
+};
 
-  const [cart, setCart] = useState<Cart>(initialCart);
+export function TillShell({ identity }: Props) {
+  const buildInitialCart = (): Cart =>
+    openCart({
+      tenantId: identity.tenantId,
+      locationId: identity.locationId,
+      customer: { kind: "MI_ADULT_USE" },
+      ruleset: MI_2026_05_14,
+    });
+
+  const [cart, setCart] = useState<Cart>(buildInitialCart);
   const [refusal, setRefusal] = useState<RefusalReason | null>(null);
+  const [completedSale, setCompletedSale] = useState<CompletedSale | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const taxResult = useMemo(() => computeTaxBreakdown(cart), [cart]);
+  const grandTotalCents = taxResult.ok ? taxResult.breakdown.grandTotalCents : 0;
 
   const onSetCustomer = (customer: CustomerType) => {
     const r = reduce(cart, { type: "SET_CUSTOMER", customer }, kernel);
@@ -79,12 +90,47 @@ export function TillShell({ identity }: Props) {
     }
   };
 
+  const onCompleteSale = (tenderCents: number) => {
+    setServerError(null);
+    startTransition(async () => {
+      const response = await completeSaleAction({
+        tenantId: identity.tenantId,
+        locationId: identity.locationId,
+        cashierUserId: identity.cashierUserId,
+        customer: cart.customer,
+        rulesetVersion: cart.ruleset.version,
+        idVerified: cart.idVerified,
+        lines: cart.lines,
+        tenderAmountCents: tenderCents,
+      });
+      if (response.ok) {
+        setCompletedSale({
+          saleId: response.saleId,
+          receiptText: response.receiptText,
+          changeDueCents: response.changeDueCents,
+        });
+      } else {
+        const text = response.refusal
+          ? `${response.reason} (${refusalToText(response.refusal)})`
+          : response.reason;
+        setServerError(text);
+      }
+    });
+  };
+
+  const onStartNewSale = () => {
+    setCart(buildInitialCart());
+    setRefusal(null);
+    setCompletedSale(null);
+    setServerError(null);
+  };
+
   return (
     <main className="min-h-screen bg-parchment text-ink">
       {identity.tenantTraining && (
         <div className="bg-mustard-400 px-4 py-2 text-center text-sm font-semibold text-ink">
-          ⚠ TRAINING MODE — no real sales, no METRC writes, no inventory
-          decrements
+          ⚠ TRAINING MODE — sales are recorded but not flagged as production
+          transactions
         </div>
       )}
 
@@ -108,23 +154,53 @@ export function TillShell({ identity }: Props) {
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 p-6 lg:grid-cols-[1fr_1fr]">
         <section className="space-y-4">
-          <CustomerSelector
-            customer={cart.customer}
-            idVerified={cart.idVerified}
-            onCustomerChange={onSetCustomer}
-            onIdVerifiedChange={onSetIdVerified}
-          />
-          <LineEntry onAddLine={onAddLine} />
-          {refusal && <RefusalBanner refusal={refusal} />}
+          {completedSale ? (
+            <ReceiptPreview
+              receiptText={completedSale.receiptText}
+              saleId={completedSale.saleId}
+              changeDueCents={completedSale.changeDueCents}
+              onStartNewSale={onStartNewSale}
+            />
+          ) : (
+            <>
+              <CustomerSelector
+                customer={cart.customer}
+                idVerified={cart.idVerified}
+                onCustomerChange={onSetCustomer}
+                onIdVerifiedChange={onSetIdVerified}
+              />
+              <LineEntry onAddLine={onAddLine} />
+              {refusal && <RefusalBanner refusal={refusal} />}
+              {serverError && (
+                <div
+                  role="alert"
+                  className="rounded-md border-l-4 border-danger bg-clay-300 bg-opacity-30 p-3 text-sm text-ink"
+                >
+                  <div className="font-semibold uppercase text-danger">
+                    Server refused sale
+                  </div>
+                  <div className="mt-1">{serverError}</div>
+                </div>
+              )}
+            </>
+          )}
         </section>
 
-        <section>
+        <section className="space-y-4">
           <CartView
             cart={cart}
             taxBreakdown={taxResult.ok ? taxResult.breakdown : null}
             taxRefusal={taxResult.ok ? null : taxResult.reason}
             onRemoveLine={onRemoveLine}
           />
+          {!completedSale && (
+            <TenderEntry
+              totalCents={grandTotalCents}
+              disabled={cart.lines.length === 0 || !taxResult.ok}
+              busy={isPending}
+              onComplete={onCompleteSale}
+            />
+          )}
         </section>
       </div>
     </main>
