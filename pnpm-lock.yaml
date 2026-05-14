@@ -23,6 +23,9 @@ importers:
       '@tend-o-matic/compliance':
         specifier: workspace:*
         version: link:../../packages/compliance
+      '@tend-o-matic/compliance-monitor':
+        specifier: workspace:*
+        version: link:../../packages/compliance-monitor
       '@tend-o-matic/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -202,6 +205,9 @@ importers:
         specifier: workspace:*
         version: link:../compliance
     devDependencies:
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.19.41
       typescript:
         specifier: ^5.5.4
         version: 5.9.3

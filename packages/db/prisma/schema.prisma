@@ -486,6 +486,28 @@ model MetrcOutboxRow {
   @@map("metrc_outbox")
 }
 
+model ComplianceSourceSnapshot {
+  // Global table (NOT tenant-scoped): regulator sources are platform-
+  // wide, not per-tenant. Tenants subscribe to alerts derived from
+  // these snapshots; the subscription model lands later.
+  id          String   @id @default(uuid()) @db.Uuid
+  sourceCode  String   @map("source_code")
+  capturedAt  DateTime @default(now()) @map("captured_at") @db.Timestamptz
+  // SHA-256 of the canonicalized content. Two consecutive snapshots
+  // with the same hash mean "no change"; the diff engine short-circuits.
+  contentHash String   @map("content_hash")
+  // Stored as text so we can full-text-search later. Large HTML blobs
+  // could move to object storage if this gets unwieldy.
+  contentText String   @map("content_text")
+  contentBytes Int     @map("content_bytes")
+  // HTTP fetch status (200, 404, 5xx, or 0 for fetch error).
+  fetchStatus Int      @map("fetch_status")
+  fetchError  String?  @map("fetch_error")
+
+  @@index([sourceCode, capturedAt(sort: Desc)])
+  @@map("compliance_source_snapshot")
+}
+
 model ManagerOverride {
   id                       String                 @id @default(uuid()) @db.Uuid
   tenantId                 String                 @map("tenant_id") @db.Uuid

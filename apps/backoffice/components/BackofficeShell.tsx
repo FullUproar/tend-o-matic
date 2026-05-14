@@ -9,6 +9,7 @@ type Props = {
     | "products"
     | "inventory"
     | "sales"
+    | "alerts"
     | "settings";
   children: React.ReactNode;
 };
@@ -18,6 +19,7 @@ const NAV: Array<{ href: string; label: string; section: Props["activeSection"] 
   { href: "/products", label: "Products", section: "products" },
   { href: "/inventory", label: "Inventory", section: "inventory" },
   { href: "/sales", label: "Sales", section: "sales" },
+  { href: "/alerts", label: "Compliance", section: "alerts" },
   { href: "/settings", label: "Settings", section: "settings" },
 ];
 
