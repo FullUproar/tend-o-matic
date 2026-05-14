@@ -72,6 +72,12 @@ importers:
 
   apps/portal:
     dependencies:
+      '@prisma/client':
+        specifier: ^5.18.0
+        version: 5.22.0(prisma@5.22.0)
+      '@tend-o-matic/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       next:
         specifier: ^14.2.5
         version: 14.2.35(@playwright/test@1.60.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

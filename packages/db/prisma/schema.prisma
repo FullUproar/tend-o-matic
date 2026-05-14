@@ -486,6 +486,33 @@ model MetrcOutboxRow {
   @@map("metrc_outbox")
 }
 
+model DemoRequest {
+  // Global table (NOT tenant-scoped): demo requests come from prospects,
+  // before they are tenants. Read access is super-admin-only via the
+  // portal app; written by a public server action from the marketing
+  // landing page. No PII beyond what the prospect chooses to share.
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  email     String
+  company   String
+  role      String?
+  state     String?
+  message   String?
+  // Soft anti-abuse signal: capture IP at submission time so we can
+  // rate-limit / spam-filter if drip starts. NOT user-facing.
+  sourceIp  String?  @map("source_ip")
+  // Marketing attribution: utm_* params if present on landing URL.
+  utm       Json?
+  status    String   @default("NEW")
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  contactedAt DateTime? @map("contacted_at") @db.Timestamptz
+
+  @@index([createdAt(sort: Desc)])
+  @@index([status])
+  @@map("demo_request")
+}
+
 model ComplianceSourceSnapshot {
   // Global table (NOT tenant-scoped): regulator sources are platform-
   // wide, not per-tenant. Tenants subscribe to alerts derived from
