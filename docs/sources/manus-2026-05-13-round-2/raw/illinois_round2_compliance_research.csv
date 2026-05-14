@@ -1,0 +1,292 @@
+Subject,Section ID,Question,Verified Values,Primary Sources,Effective Dates,Confidence Note,Unverified Gaps,Product Implications,Error
+B1,B1,"What are the transaction and possession limits for cannabis in Illinois for residents and non-residents, and how do these limits reconcile?","The Illinois Cannabis Regulation and Tax Act (410 ILCS 705/10-10) specifies the following possession limits, which also serve as transaction limits as no person may obtain an amount exceeding their possession limit:
+
+*   **For Illinois residents (21 years of age or older):**
+    *   30 grams of cannabis flower.
+    *   No more than 500 milligrams of THC contained in cannabis-infused product.
+    *   5 grams of cannabis concentrate.
+    *   For registered qualifying patients, any cannabis produced by cannabis plants grown under subsection (b) of Section 10-5, provided any amount of cannabis produced in excess of 30 grams of raw cannabis or its equivalent must remain secured within the residence or residential property in which it was grown.
+
+*   **For non-residents (21 years of age or older):**
+    *   15 grams of cannabis flower.
+    *   2.5 grams of cannabis concentrate.
+    *   250 milligrams of THC contained in a cannabis-infused product.
+
+These possession limits are considered cumulative.",- Illinois General Assembly - 410 ILCS 705/ Cannabis Regulation and Tax Act. — https://witnessslips.ilga.gov/legislation/ILCS/details?MajorTopic=&Chapter=&ActName=Cannabis%20Regulation%20and%20Tax%20Act.&ActID=3992&ChapterID=35&SeqStart=&&ChapAct=FullText,"P.A. 101-27, eff. 6-25-19; 101-593, eff. 12-4-19.","High. Information is directly from the official Illinois Compiled Statutes, specifically the Cannabis Regulation and Tax Act.",None,"A dispensary Point of Sale (POS) system must enforce these limits at the point of sale. The system needs to differentiate between Illinois residents and non-residents to apply the correct possession/transaction limits. It must also account for the cumulative nature of these limits, preventing a customer from exceeding their total possession limit across different product types (flower, concentrate, infused products) in a single transaction or across multiple transactions if a tracking system is in place. The POS should also consider any existing possession by the customer (e.g., home cultivation or previous purchases) if such data is available and legally required to be reconciled.",
+B2,,"What are the Illinois adult-use cannabis equivalency and purchase limits, and do these caps interact or are they independent?","For adults 21 years of age or older, the legal possession limits in Illinois are:
+
+**For Illinois Residents:**
+*   **Cannabis Flower:** 30 grams (approximately 1 ounce) [1] [2]
+*   **THC in Cannabis-Infused Products:** 500 milligrams [1] [2]
+*   **Cannabis Concentrate:** 5 grams [1] [2]
+
+**For Non-Residents:**
+*   **Cannabis Flower:** 15 grams (approximately ½ ounce) [1] [2]
+*   **THC in Cannabis-Infused Products:** 250 milligrams [1] [2]
+*   **Cannabis Concentrate:** 2.5 grams [1] [2]
+
+These totals are **cumulative**, meaning a person 21 years of age or older may possess a combination of cannabis flower, cannabis-infused products, and cannabis concentrates up to the limit for each category of product [2].
+
+Regarding cannabis-infused products, each package may not include more than a total of 100 milligrams of THC, with individual servings indicated by scoring, wrapping, or other indicators designating individual serving sizes not exceeding 10 milligrams of THC [1]. The Department of Agriculture may change these amounts by rule [1].","- Illinois Cannabis Regulation and Tax Act (410 ILCS 705/) — https://www.ilga.gov/legislation/ILCS/details?MajorTopic=&Chapter=&ActName=Cannabis%20Regulation%20and%20Tax%20Act.&ActID=3992&ChapterID=35&ChapAct=410+ILCS+705%2F&SeqStart=13700000&SeqEnd=15800000
+- Cannabis Regulation Oversight Office (CROO) FAQs — https://cannabis.illinois.gov/about/faqs.html","The Cannabis Regulation and Tax Act (P.A. 101-27) became effective on June 25, 2019, with subsequent amendments. The CROO FAQs reflect current regulations.",High. Information is directly from the Illinois Cannabis Regulation and Tax Act and the official Cannabis Regulation Oversight Office FAQs.,None,"A dispensary Point-of-Sale (POS) system must enforce distinct purchase limits for Illinois residents and non-residents. The system should track purchases across three categories: cannabis flower, cannabis-infused products (based on THC content), and cannabis concentrate. Crucially, these limits are cumulative, meaning the POS must prevent a customer from exceeding the total allowable amount across all product types combined. For example, if a customer purchases a certain amount of flower, their remaining allowance for concentrates and infused products will be reduced proportionally based on equivalency rules. The POS must also ensure that cannabis-infused products do not exceed 100mg THC per package, with individual servings not exceeding 10mg THC.",
+B3,B3,"What are the medical patient limits, how can allotment be queried, what are the rules for caregivers, and what are the patient subtypes in Illinois medical cannabis regulations?","### Medical Patient Limits
+
+Medical cannabis patients in Illinois have a purchase limit of **2.5 ounces of usable cannabis during a period of 14 days** [1]. This limit applies to all forms of cannabis products, including flower, pre-rolls, vapes, edibles, and oils. The pre-mixed weight of medical cannabis used in making a cannabis-infused product counts towards this total limit [1].
+
+Conversion rates for different product types against the 2.5-ounce (70.87 grams) flower equivalency are as follows [2, 3]:
+
+*   **Flower or Pre-rolls:** 2.5 ounces = 70.87 grams [2, 3]
+*   **Edibles or Beverages:** 21,300mg of THC (equivalent to 213 packages with 100mg THC) [2, 3]
+*   **Vapes or Concentrates:** 26.6 grams of THC (equivalent to about 27 vapes of 1 gram) [3] (Note: An earlier document stated 21.3 grams of THC for vapes/concentrates [2], but the September 2025 document provides the updated 26.6 grams [3]).
+
+A patient may apply for a waiver to increase their adequate supply if a certifying healthcare professional provides a substantial medical basis in a signed, written statement asserting that 2.5 ounces is insufficient for a 14-day period to alleviate their debilitating medical condition or symptoms [1].
+
+### Allotment Query
+
+The current available purchase amount for a patient is calculated as the Patient Purchase Limit Amount minus the Total Amount Purchased within the last 14 days [2, 3]. The ""Illinois Cannabis Tracking System"" is established and maintained by the Department of Public Health to track the date of sale, amount, and price of medical cannabis purchased by an Opioid Alternative Pilot Program participant [1]. However, primary sources do not explicitly detail a publicly accessible system for general medical patients to query their remaining allotment in real-time. Dispensaries typically track this information at the point of sale.
+
+### Caregivers
+
+A ""Designated caregiver"" is defined as a person who [1]:
+
+1.  Is at least 21 years of age.
+2.  Has agreed to assist with a patient's medical use of cannabis.
+3.  Has not been convicted of an excluded offense.
+4.  Assists no more than one registered qualifying patient with his or her medical use of cannabis.
+
+Registered qualifying patients under 18 years of age shall be assisted by a designated caregiver [4].
+
+### Patient Subtypes
+
+*   **Qualifying Patient:** A person who has been diagnosed by a certifying healthcare professional as having a debilitating medical condition [1]. The Act lists numerous conditions, including cancer, glaucoma, HIV/AIDS, multiple sclerosis, chronic pain, autism, and terminal illness [1].
+*   **Minor Qualifying Patients:** These patients are limited to only cannabis-infused products [2, 3].
+*   **Opioid Alternative Pilot Program Participant:** An individual who has received a valid written certification to participate in the program for a medical condition for which an opioid has been or could be prescribed [1].","- Compassionate Use of Medical Cannabis Program Act (410 ILCS 130/10) — https://ilga.gov/documents/legislation/ilcs/documents/041001300K10.htm
+- Medical Cannabis Limits, Explained (June 6, 2025 version) — https://cannabis.illinois.gov/content/dam/soi/en/web/cannabis/documents/croo/Medical-Cannabis-Limit-Explainer-6-6-25.pdf
+- Medical Cannabis Limits, Explained (September 22, 2025 version) — https://cannabis.illinois.gov/content/dam/soi/en/web/cannabis/documents/croo/croo-media-news/2025/september/Medical%20Cannabis%20Limit%20Explainer%209-22-25.pdf
+- Illinois Administrative Code, Title 77, Part 946.280 — https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-77-SS-946.280",Medical patient purchase limits are currently in force as per the Compassionate Use of Medical Cannabis Program Act (410 ILCS 130/10) and further explained by the Illinois Cannabis Regulation Oversight Office (CROO) documents. The definition of 'Designated caregiver' and 'Qualifying patient' are also currently in force as per 410 ILCS 130/10. The Illinois Cannabis Tracking System is in force for Opioid Alternative Pilot Program participants.,High. Information gathered directly from Illinois state government websites and legislative documents. Effective dates are based on the latest available documents.,"- A direct, publicly accessible method for general medical patients to query their remaining allotment in real-time. While the 'Illinois Cannabis Tracking System' is mentioned for Opioid Alternative Pilot Program participants, its availability or mechanism for general medical patients to check their own allotment is not explicitly detailed in primary sources.","A dispensary Point of Sale (POS) system must implement a rules engine to enforce the 14-day rolling purchase limit for medical patients. This includes converting all cannabis product purchases (flower, edibles, concentrates, vapes, oils) into a flower equivalency to deduct from the 2.5-ounce limit. The system must be able to track purchases over a 14-day period per patient. For minor qualifying patients, the POS must restrict purchases to only cannabis-infused products. The POS should also be able to identify designated caregivers and link them to their respective qualifying patients, ensuring they assist no more than one patient. The system should ideally integrate with the 'Illinois Cannabis Tracking System' if it becomes available for general medical patient allotment queries, or rely on real-time Metrc data for accurate allotment tracking. The POS should flag attempts to exceed the purchase limit and prevent transactions that would put a patient over their limit. The system should also accommodate increased allotment waivers for patients with a healthcare provider's certification.",
+B4,B4,"What are the tax rates and regulations for adult-use cannabis in Illinois, including state and local taxes, and what are the implications for a dispensary Point of Sale (POS) system?","The Illinois adult-use cannabis tax engine involves several layers of taxation:
+
+**1. Cannabis Purchaser Excise Tax** [1] [2] [3]
+This tax is imposed on purchasers for the privilege of using cannabis and is collected by cannabis dispensaries on all retail sales of adult-use cannabis. The rates are:
+*   **10%** of the purchase price for adult-use cannabis (other than cannabis-infused products) with an adjusted delta-9-tetrahydrocannabinol (THC) level at or below 35% [1] [3].
+*   **25%** of the purchase price for adult-use cannabis (other than cannabis-infused products) with an adjusted delta-9-tetrahydrocannabinol (THC) level above 35% [1] [3].
+*   **20%** of the purchase price for adult-use cannabis-infused products [1] [3].
+
+**Note:** Cannabis concentrates are not taxed as cannabis-infused products; their tax is based on the adjusted THC level. Vape products containing cannabis are also taxed based on the percentage of THC in the solution, not as cannabis-infused products [1]. Medical cannabis is not subject to the Cannabis Purchaser Excise Tax [3].
+
+**2. State Retailers' Occupation Tax (Sales Tax)** [1] [2]
+This is the general sales tax applied to retail sales:
+*   **Adult-use cannabis:** Subject to the **6.25%** State Retailers' Occupation Tax, applied in the same manner as other general merchandise [1] [2].
+*   **Medical cannabis:** Subject to a **1%** State Retailers' Occupation Tax rate, consistent with other qualifying drugs [1] [2].
+
+**3. Local Retailers' Occupation Taxes (Adult Use)** [1] [2]
+In addition to the state Retailers' Occupation Tax, counties and municipalities may impose their own cannabis-specific sales taxes on adult-use cannabis:
+*   **Municipal Cannabis Retailers' Occupation Tax:** May not exceed **3%** [1] [2].
+*   **County Cannabis Retailers' Occupation Tax:** May not exceed **3.75%** in unincorporated areas of the county and **3%** in a municipality located in the county [1] [2].
+
+These local taxes are in addition to the state Retailers' Occupation Tax and any other locally imposed retailers' occupation taxes (e.g., home rule, non-home rule, county public safety, Regional Transportation Authority) [1] [2]. Municipalities and counties must file ordinances with the Illinois Department of Revenue (IDOR) for these taxes to take effect [1].","- Illinois Department of Revenue: Cannabis Taxes — https://tax.illinois.gov/research/taxinformation/other/cannabis-taxes.html
+- Illinois Department of Revenue: Cannabis Tax Frequently Asked Questions — https://tax.illinois.gov/research/taxinformation/other/cannabis-tax-frequently-asked-questions.html
+- Illinois General Assembly: 410 ILCS 705/ Cannabis Regulation and Tax Act. — https://www.ilga.gov/legislation/ILCS/details?MajorTopic=&Chapter=&ActName=Cannabis%20Regulation%20and%20Tax%20Act.&ActID=3992&ChapterID=35&ChapAct=410+ILCS+705%2F&SeqStart=16900000&SeqEnd=18700000","Cannabis Purchaser Excise Tax: Beginning January 1, 2020 [3].
+State Retailers' Occupation Tax: Currently in force [1] [2].
+Local Cannabis Retailers' Occupation Taxes: Effective dates depend on when municipalities/counties file ordinances with IDOR (July 1 or January 1 of the following year, based on April 1 or October 1 filing deadlines) [2].","High. The information was directly extracted from official Illinois government websites (Department of Revenue and General Assembly), which are primary sources. The tax rates and regulations are clearly stated.","- Specific effective dates for all local municipal and county cannabis retailers' occupation taxes. These are dependent on local ordinances and would require a more granular search for each specific municipality/county.
+- A detailed breakdown of the 'adjusted delta-9-tetrahydrocannabinol level' calculation beyond the formula provided in the statutes, specifically how it is to be practically implemented and verified at the POS level [1] [3].","A dispensary POS system must be capable of dynamically calculating and applying multiple layers of taxes based on product type (flower, concentrate, infused product), THC level, and the specific location of the sale. This includes:
+
+*   **Cannabis Purchaser Excise Tax:** Requires the POS to identify whether a product is a cannabis-infused product or non-infused cannabis, and for non-infused cannabis, to determine its adjusted THC level to apply the correct 10% or 25% rate [1] [2] [3]. The POS must also differentiate between medical and adult-use cannabis, as medical cannabis is exempt from this tax [3].
+*   **State Retailers' Occupation Tax:** The POS must apply a 6.25% state sales tax for adult-use cannabis and a 1% state sales tax for medical cannabis (as a qualifying drug) [1] [2].
+*   **Local Retailers' Occupation Taxes:** The POS needs to support the application of additional municipal and county cannabis retailers' occupation taxes, which can vary by jurisdiction (up to 3% for municipalities and up to 3.75% for counties in unincorporated areas, 3% in municipalities) [1] [2]. These local taxes are in addition to the state Retailers' Occupation Tax and other local sales taxes.
+*   **Tax Display:** The POS must clearly state the collected taxes as a distinct item separate from the purchase price on the receipt [3].
+*   **Adjusted THC Calculation:** The POS or an integrated system should be able to handle the calculation of 'adjusted THC content' for non-infused cannabis products, which involves adding the percentage of delta-9-tetrahydrocannabinol plus 0.877 multiplied by the percentage of tetrahydrocannabinolic acid [1] [3].
+*   **Exemptions:** The POS must correctly identify and exempt medical cannabis sales from the Cannabis Purchaser Excise Tax and apply the lower 1% state sales tax rate [2] [3].",
+B5,B5,What are the required content elements for customer receipts issued by Illinois adult-use cannabis dispensaries?,"The Illinois Cannabis Regulation and Tax Act (410 ILCS 705/) specifies the following requirements for cannabis dispensary receipts:
+
+1.  **Itemized Pricing for Bundled Products**: When cannabis-infused products are sold in combination or bundled, each item of cannabis, concentrate, or cannabis-infused product must be separately identified by quantity and price on the receipt [1].
+2.  **Comprehensive Transaction Data**: ""Transaction data"" that must be included on the receipt encompasses [1]:
+    *   Items purchased by a purchaser.
+    *   The price of each item.
+    *   A taxability determination for each item.
+    *   A segregated tax amount for each taxed item.
+    *   The amount of cash or credit tendered.
+    *   The net amount returned to the customer in change.
+    *   The date and time of the purchase.
+    *   The name, address, and identification number of the vendor.
+    *   The receipt or invoice number of the transaction.","- Illinois General Assembly - 410 ILCS 705/ Cannabis Regulation and Tax Act. — https://www.ilga.gov/legislation/ILCS/details?MajorTopic=&Chapter=&ActName=Cannabis%20Regulation%20and%20Tax%20Act.&ActID=3992&ChapterID=35&SeqStart=&&ChapAct=FullText
+- Illinois Administrative Code, Title 68, Part 1291 - CANNABIS REGULATION AND TAX ACT — https://www.ilga.gov/agencies/JCAR/EntirePart?titlepart=06801291","The Cannabis Regulation and Tax Act (410 ILCS 705/) became effective on June 25, 2019, with subsequent amendments. The specific provisions cited are currently in force.","High. The information was directly extracted from the Illinois Cannabis Regulation and Tax Act, which is a primary source. The Illinois Administrative Code was also reviewed, and while it mentioned ""receipt"" in other contexts, it did not provide additional specific content requirements for customer sales receipts.",None. The primary sources provided sufficient detail for the required receipt content.,"A dispensary Point-of-Sale (POS) system must be configured to ensure that:
+
+1.  For cannabis-infused products sold in combination or bundled, each individual item of cannabis, concentrate, or cannabis-infused product is clearly and separately identified by its quantity and price on the customer receipt.
+2.  Receipts generated by the POS system include all required ""Transaction data"" elements: items purchased, price of each item, taxability determination for each item, segregated tax amount for each taxed item, cash/credit tendered, net amount returned in change, date and time of purchase, name/address/identification number of the vendor, and the receipt or invoice number of the transaction.
+3.  The POS system should have mechanisms to accurately calculate and display segregated tax amounts for each taxed item.",
+B6,B6,"What are the Illinois cannabis compliance regulations regarding returns, voids, and recalls for dispensing organizations?","Illinois dispensing organizations may establish policies for the return and refund of damaged, inadequate, or erroneously dispensed cannabis. However, returned products with a broken tamper-evident seal or those that have left the premises cannot be resold [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.320]. All returned products must be entered into the State Verification System within five calendar days of the return [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.320]. Products that cannot be resold must be destroyed in accordance with Section 15-90 of the Act [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.320].
+
+Dispensing organizations are required to have policies and procedures for both voluntary and mandatory recalls of cannabis products [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.330]. These policies must include mechanisms to contact purchasers, identify and contact the product's manufacturer, communicate with the Department of Financial and Professional Regulation (IDFPR), Department of Agriculture, and Department of Public Health within 24 hours of discovering defective or potentially defective cannabis, and outline procedures for product collection and destruction [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.330]. Recalled products must be entered into the State Verification System prior to destruction [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.330].
+
+The Department may mandate a recall if a product is adulterated, misbranded, or poses a public safety risk, and can require immediate cessation of distribution and quarantine of products for at least 72 hours or until further notice [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.330]. The Department may also require laboratory testing of suspected products [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.330]. ""Adulterated"" includes cannabis that has been tampered with, altered after packaging, or materially changed condition since laboratory testing [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.330]. Affected organizations have 30 days to request a hearing following a mandatory recall [https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.330].","- Ill. Admin. Code tit. 68, § 1291.320 - Returns and Refunds — https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.320
+- Ill. Admin. Code tit. 68, § 1291.330 - Recalls and Product Safety — https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-68-SS-1291.330","Ill. Admin. Code tit. 68, § 1291.320: Effective August 20, 2024.
+Ill. Admin. Code tit. 68, § 1291.330: Effective August 20, 2024.","High. All information is directly extracted from the Illinois Administrative Code, which is a primary source. The effective dates are clearly stated within the regulations.",None,"For a dispensary Point of Sale (POS) system, the following rules-engine and workflow implications arise:
+
+**Returns and Refunds (Section 1291.320):**
+*   **Policy Enforcement:** The POS system must support the implementation of a dispensary's return and refund policy for damaged, inadequate, or erroneously dispensed cannabis. This policy must explicitly prohibit the resale of products with broken tamper-evident seals or those that have left the premises.
+*   **Inventory Management:** Upon return, the POS system must facilitate the entry of the returned product into the State Verification System within five calendar days. This requires integration with Metrc or the designated state tracking system.
+*   **Destruction Protocol:** The POS system should flag returned products that cannot be resold (tamper-evident seal broken or left premises) for destruction in accordance with Section 15-90 of the Act, and potentially track the destruction process.
+
+**Recalls and Product Safety (Section 1291.330):**
+*   **Recall Management:** The POS system needs functionality to manage both voluntary and mandatory recalls. This includes:
+    *   **Customer Identification:** Ability to identify and contact purchasers who have obtained recalled products. This implies robust customer purchase history tracking.
+    *   **Manufacturer Identification:** Capability to trace products back to the cultivation center, craft grower, or infuser that manufactured them.
+    *   **Communication Protocols:** While not directly a POS function, the POS data (e.g., sales records, product IDs) would be crucial for informing communications with regulatory bodies within 24 hours of discovering defective cannabis.
+    *   **Product Quarantine/Removal:** The POS system must be able to immediately cease distribution of recalled products and quarantine them from active inventory.
+    *   **Destruction Tracking:** Similar to returns, the POS should track the destruction of recalled products in compliance with Section 1291.325 and Section 15-65 of the Act.
+    *   **State Verification System Integration:** All recalled products must be entered into the State Verification System prior to destruction.
+*   **Adulterated/Misbranded Product Handling:** The POS system should support procedures for quarantining suspected products and, if required, facilitate tracking through laboratory testing and subsequent re-entry into active stock if deemed safe.",
+B7,B7,"What are the promotional restrictions for cannabis business establishments, particularly dispensaries, in Illinois, as outlined in current primary sources?","The Illinois Cannabis Regulation and Tax Act (410 ILCS 705/55-20) [1] establishes several prohibitions regarding advertising and promotions for cannabis business establishments, including dispensaries:
+
+**Prohibited Advertising Content (410 ILCS 705/55-20(a))** [1]:
+*   Advertisements must not contain statements or illustrations that are false or misleading.
+*   Advertisements must not promote the overconsumption of cannabis or cannabis products.
+*   Advertisements must not depict the actual consumption of cannabis or cannabis products.
+*   Advertisements must not depict a person under 21 years of age consuming cannabis.
+*   Advertisements must not make any health, medicinal, or therapeutic claims about cannabis or cannabis-infused products.
+*   Advertisements must not include the image of a cannabis leaf or bud.
+*   Advertisements must not include any image designed or likely to appeal to minors, such as cartoons, toys, animals, children, or any likeness to images, characters, or phrases popularly used to advertise to children, or any imitation of candy packaging or labeling, or that promotes consumption by persons under 21 years of age.
+
+**Prohibited Advertising Placement (410 ILCS 705/55-20(b))** [1]:
+*   Advertisements are prohibited within 1,000 feet of the perimeter of school grounds, a playground, a recreation center or facility, a child care center, a public park or public library, or a game arcade to which admission is not restricted to persons 21 years of age or older.
+*   Advertisements are prohibited on or in a public transit vehicle or public transit shelter.
+*   Advertisements are prohibited on or in publicly owned or publicly operated property.
+*   Advertisements placed in any form or medium must not contain information that is false or misleading, promotes excessive consumption, depicts a person under 21 consuming cannabis, includes the image of a cannabis leaf, or includes any image designed or likely to appeal to minors (as described above).
+
+**Exemptions (410 ILCS 705/55-20(c))** [1]:
+*   The prohibitions in subsections (a) and (b) do not apply to an educational message.
+
+**Sales Promotions (410 ILCS 705/55-20(d))** [1]:
+*   Cannabis business establishments are prohibited from encouraging the sale of cannabis or cannabis products by giving away cannabis or cannabis products.
+*   Cannabis business establishments are prohibited from conducting games or competitions related to the consumption of cannabis or cannabis products.
+*   Cannabis business establishments are prohibited from providing promotional materials or activities of a manner or type that would be appealing to children.",- 410 ILCS 705/ Cannabis Regulation and Tax Act. — https://www.ilga.gov/legislation/ILCS/details?MajorTopic=&Chapter=&ActName=Cannabis%20Regulation%20and%20Tax%20Act.&ActID=3992&ChapterID=35&ChapAct=410+ILCS+705%2F&SeqStart=13700000&SeqEnd=15800000,"The provisions related to advertising and promotions in 410 ILCS 705/55-20 became effective on June 25, 2019 (P.A. 101-27) and were subsequently amended with an effective date of December 4, 2019 (P.A. 101-593).","High. Information directly extracted from the official Illinois Compiled Statutes, specifically Section 55-20 of the Cannabis Regulation and Tax Act.",None. The Illinois Cannabis Regulation and Tax Act provides comprehensive details on promotional restrictions.,"A dispensary Point-of-Sale (POS) system and associated marketing platforms must implement robust rules-engine checks to prevent the creation or display of promotional content that violates Illinois law. This includes:
+
+*   **Content Filtering:** Automated detection and flagging of prohibited imagery (cannabis leaf/bud, cartoons, toys, animals, children, candy imitation) and keywords (health/medicinal/therapeutic claims, promoting overconsumption, depicting consumption by minors).
+*   **Age Verification:** Strict age-gating mechanisms for any digital advertising or promotional materials to ensure content is not accessible to individuals under 21.
+*   **Location-Based Restrictions:** Geo-fencing capabilities to prevent digital advertisements from being displayed within 1,000 feet of schools, playgrounds, recreation centers, child care centers, public parks/libraries, or game arcades not restricted to persons 21+.
+*   **Prohibition of Specific Sales Tactics:** The POS system should not facilitate or allow promotions involving free cannabis products, consumption-related games/competitions, or promotional materials designed to appeal to children.
+*   **Educational Message Exemption:** The system should allow for clearly labeled educational messages that would otherwise fall under content restrictions, provided they meet the legal definition of an educational message.
+*   **Audit Trail:** Maintain detailed logs of all promotional activities and content for compliance audits.",
+B8,,What are the requirements for agent licensing and the Responsible Vendor Program in Illinois cannabis dispensaries?,"### Responsible Vendor Program Application
+*   Applications are accepted between August 1 and August 15 of every odd-numbered year [1].
+*   The application fee is $2,000, payable by cashier's check or money order to ""Illinois Department of Financial and Professional Regulation"" [1].
+*   All checks and money orders must be post-marked by August 15 of the application year [1].
+*   Responsible Vendors need to reapply annually within this window [1].
+*   Failure to apply within the window will result in not being a Responsible Vendor, and the window will not reopen until August of the next odd-numbered year [1].
+
+### Responsible Vendor Training Topics
+Training modules must cover [1]:
+*   Health and safety concerns of cannabis use (responsible use, physical effects, onset of physiological effects, recognizing impairment, responses to overconsumption).
+*   Laws and regulations on driving while under the influence.
+*   Sales to minor prohibitions.
+*   All relevant Illinois laws and rules.
+*   Acceptable forms of identification, how to check IDs, and common verification mistakes.
+*   Safe storage of cannabis.
+*   Compliance with all inventory tracking regulations.
+*   Waste handling, management, and disposal.
+*   Health and safety standards at the dispensary.
+*   Maintenance of records.
+*   Security and surveillance requirements.
+*   Permitting inspections by State and local licensing and enforcement authorities.
+*   Privacy issues.
+*   Packaging and labeling requirements.
+
+### Who Needs Responsible Vendor Training
+*   All owners, managers, employees, and agents *involved in the handling or sale of cannabis or cannabis-infused products* employed by an adult use dispensing organization or medical cannabis dispensing organization [1].
+*   Principal officers are only required to receive Responsible Vendor Training if they are also agents involved in the handling or sale of cannabis [1].
+
+### Completion of Responsible Vendor Training
+*   Upon successful completion, the provider delivers proof of completion to the dispensing organization, which must retain a copy [1].
+
+### Responsible Vendor Trainers
+*   Trainers are not licensed by the Department but are certified by the Department to provide training [1].
+*   Only certified trainers and programs are authorized to provide training [1].
+
+### Consequences of Not Receiving Responsible Vendor Training
+*   The license of a dispensing organization or medical cannabis dispensing organization whose owners, managers, employees, or agents fail to comply may be suspended or permanently revoked under Section 15-145 or face other disciplinary action [1].
+
+### 8-Hour Training Requirement (Section 15-65(a)(5) of the Cannabis Regulation and Tax Act)
+*   All agents, including all Principal Officers, must meet an 8-hour training requirement [1].
+*   Responsible Vendor training can count towards this 8-hour requirement if it meets the requirements of Section 15-40(i)(3) and 15-65(a)(5) of the Cannabis Regulation and Tax Act [1].
+*   If Responsible Vendor training is, for example, 3 hours, the dispensing organization must provide an additional 5 hours of training per year [1].
+*   Topics for the 8-hour training include [1]:
+    *   How to effectively operate the point-of-sale system and the State's verification system.
+    *   Proper inventory handling and tracking.
+    *   Specific uses of cannabis or cannabis-infused products.
+    *   Instruction regarding regulatory inspection preparedness and law enforcement interaction.
+    *   Awareness of the legal requirements for maintaining status as an agent.
+
+### Agent Licensing
+*   The IDFPR website provides an ""Adult Use Dispensary Agent Attestation Form"" and ""Fingerprint Instructions"" [2], indicating that agent licensing involves an attestation and fingerprinting process.","- Responsible Vendor Program FAQs — https://idfpr.illinois.gov/content/dam/soi/en/web/idfpr/forms/auc/2023%20RV%20FAQ.pdf
+- Forms for Dispensaries and Agents / 15-36 Application Packet — https://idfpr.illinois.gov/profs/adultusecan/forms-for-dispensaries-and-agents-15-36-application-packet.html","The 2023 Responsible Vendor Program FAQs document is dated July 24, 2023. Application windows for Responsible Vendor certification are August 1-15 of odd-numbered years. The 8-hour training requirement is ongoing.","High. Information is directly extracted from official IDFPR FAQs and forms, which are primary sources.",None,"Rules engine must account for annual Responsible Vendor certification and training requirements for all relevant dispensary personnel. POS workflow should include mechanisms to verify agent training completion and status. Audit processes need to confirm that all employees involved in handling or selling cannabis have completed the required Responsible Vendor training and the 8-hour annual training, with records maintained by the dispensing organization. The system should flag agents whose training is expired or nearing expiration. Principal officers involved in cannabis handling/sales also require this training. The 8-hour training topics include POS system operation and state verification system, inventory handling, and regulatory compliance, which directly impacts POS and inventory management system design.",
+B9,B9,"What is the BioTrack to Metrc transition status for Illinois cannabis compliance, including key dates, requirements, and implications for dispensary Point-of-Sale (POS) systems?","The State of Illinois has implemented a phased transition from BioTrack to Metrc as its official track-and-trace data system for cannabis. The transition timeline is as follows:
+
+*   **Phase 1 (April 1-18, 2025):** Transporters and Testing Laboratories gained access to Metrc, prepared staff and systems, reviewed procedures, and became ready for operations. [1]
+*   **Phase 2 (April 25-May 25, 2025):** Cultivation Centers, Craft Growers, and Infusers gained access to Metrc, prepared staff and inventory management systems, reviewed procedures, and transitioned and tagged their inventory into Metrc. [1]
+*   **Phase 3 (April 25-June 17, 2025):** Dispensaries gained access to Metrc, prepared staff and point-of-sale/inventory systems, reviewed procedures, received Metrc deliveries and packages, and transitioned and tagged their inventory into Metrc. [1]
+
+By **June 17, 2025**, all cannabis licensees were required to be transitioned into Metrc. [1]
+As of **July 1, 2025**, Metrc became the official cannabis inventory tracking system for Illinois. [1]
+
+Key requirements and details of the transition include:
+
+*   All cannabis plants must be tagged or re-tagged in Metrc. [1]
+*   BioTrack packages with test results should be moved through the supply chain and sold. [1]
+*   Unprocessed packages without test results will be re-tagged and converted to Metrc. [1]
+*   Dispensaries were given time to sell through as much BioTrack-tracked inventory as possible before the full transition. [1]
+*   Eventually, all BioTrack-tracked inventory will be re-tagged in Metrc. [1]
+*   Metrc RFID Tags are required for moving items into Metrc, with state funding covering the cost subject to certain restrictions. [1]
+*   Metrc provides an open API for integration with third-party systems, including POS. [2] [3] [4]","Informational Bulletin - Metrc – Implementation Timeline — https://cannabis.illinois.gov/content/dam/soi/en/web/cannabis/documents/idoa/informational-bulletin-metrc-implementation-timeline.pdf
+Web API Documentation — https://api-il.metrc.com/Documentation/PrintableList
+Illinois Cannabis Seed-to-Sale Tracking System — https://www.metrc.com/partner/illinois-3/
+Illinois Track and Trace Roadshow for Licensees — https://www.metrc.com/news/metrc-announces-in-person-events-in-illinois-to-prepare-licensees-for-track-and-trace-transition/","The transition phases for various license types began on April 1, 2025, with full transition for all licensees by June 17, 2025, and Metrc becoming the official system on July 1, 2025. [1]","High. Information is directly from official Illinois Department of Agriculture and Metrc sources, with specific dates and details provided.",None,"Dispensary Point-of-Sale (POS) systems must be updated to integrate with Metrc's API for inventory management, sales tracking, and compliance reporting. This includes the ability to:
+
+*   **Access Metrc:** The POS system needs to establish a connection with the Metrc system for data exchange.
+*   **Staff and Inventory Management:** POS systems should support staff training on Metrc-integrated workflows and manage inventory according to Metrc's requirements, including the use of Metrc RFID tags.
+*   **Process and Procedures:** POS workflows must align with Metrc's operational procedures for receiving, selling, and transferring cannabis products.
+*   **Receive Metrc Deliveries and Packages:** The POS system needs to be capable of processing incoming inventory that is already tagged and tracked within Metrc.
+*   **Transition and Tag Inventory:** Dispensaries must transition their existing BioTrack-tracked inventory into Metrc, which may involve retagging products with Metrc RFID tags. The POS system should facilitate this process, allowing for the sale of BioTrack-tracked inventory during a grace period to minimize retagging efforts.
+*   **API Integration:** Utilize the Metrc API for seamless data exchange, ensuring all sales and inventory movements are accurately reported to the state's track-and-trace system. [2]
+
+POS systems should also account for the phased rollout, particularly the June 17, 2025 deadline for all licensees to be transitioned and the July 1, 2025 date when Metrc becomes the official inventory tracking system. [1]",
+B10,B10,What are the publicly knowable details of the Metrc for Illinois API and Illinois-specific operations?,"The Metrc for Illinois API adheres to **REST principles** for web service design, utilizing standard HTTP methods (GET, POST, PUT, DELETE) for various operations. Authentication requires both an **Integrator API Key** (for the software company) and a **User API Key** (tied to the user's account), which are combined (`software_api_key:user_api_key`), Base64 encoded, and sent via the `Authorization` HTTP header using **basic access authentication** [https://api-il.metrc.com/Documentation/PrintableList]. Authorization is dependent on the validated user's permissions [https://api-il.metrc.com/Documentation/PrintableList].
+
+All API communication occurs over **HTTPS** and uses **JSON format** for sending and receiving data. `POST` and `PUT` requests must include a `Content-Type` header of `application/json` [https://api-il.metrc.com/Documentation/PrintableList]. Dates and times are expected and returned in **ISO 8601 format** (e.g., `YYYY-MM-DD` for dates, `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS.SSS+HH:MM` for date/time). When using timestamps in query strings, the plus sign (`+`) in time zone offsets must be URL-encoded as `%2B` [https://api-il.metrc.com/Documentation/PrintableList].
+
+Metrc allows referencing objects by their **unique ID or case-insensitive name** [https://api-il.metrc.com/Documentation/PrintableList]. A `LastModified` field is available on most data, enabling integrators to track changes and sync data by querying within a specific time range [https://api-il.metrc.com/Documentation/PrintableList]. Standard HTTP status codes are used for server responses, including 200 OK, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 413 Content Too Large, 429 Too Many Requests (rate limiting), and 500 Internal Server Error [https://api-il.metrc.com/Documentation/PrintableList].
+
+For **Illinois-specific operations**, all licensed cannabis businesses are **required to use Metrc's seed-to-sale tracking system** to monitor products throughout the supply chain [https://www.metrc.com/partner/illinois/]. The Illinois cannabis program is managed by the **Illinois Department of Financial and Professional Regulation (IDFPR)** for dispensaries and the **Illinois Department of Agriculture (IDOA)** for cultivation, processing, and transportation [https://www.metrc.com/partner/illinois/]. Metrc provides specific training resources, FAQs, and bulletins for Illinois licensees [https://www.metrc.com/partner/illinois/]. Inventory management best practices involve using `/packages/{version}/active` and `/packages/{version}/inactive` endpoints for syncing active and inactive inventory, and `/transfers/{version}/outgoing`, `/transfers/{version}/{id}/deliveries`, and `/transfers/{version}/deliveries/{id}/packages` for tracking outgoing transfers [https://api-il.metrc.com/Documentation/PrintableList]. It is noted that some state-sanctioned methods for packages leaving active inventory are not trackable via the API [https://api-il.metrc.com/Documentation/PrintableList].","- Web API Documentation — https://api-il.metrc.com/Documentation/PrintableList
+- Illinois — https://www.metrc.com/partner/illinois/","Currently in force, as per the Metrc Illinois API documentation and partner page, which provide current guidelines for API integration and compliance in Illinois. Specific bulletin dates are provided for recent updates.",High. Information is directly from Metrc's official Illinois API documentation and Illinois partner page.,None,"For a dispensary POS system, the Metrc Illinois API details imply several key considerations for rules-engine, workflow, audit, and monitoring:
+
+*   **Authentication and Authorization**: The POS must securely store and utilize both the Integrator API Key and User API Key for all Metrc API calls. User permissions within Metrc will dictate the POS's capabilities, requiring careful management of user roles and associated API keys.
+*   **Data Exchange**: All data sent to and received from Metrc must adhere to the JSON format. The POS must ensure that `POST` and `PUT` requests include the `Content-Type: application/json` header.
+*   **Date and Time Handling**: The POS must correctly format all dates and times in ISO 8601 format, including proper URL encoding for plus signs in time zone offsets (e.g., `%2B`). This is critical for accurate data submission and retrieval, especially for filtering by `LastModified` dates.
+*   **Inventory Reconciliation**: The POS should implement a mechanism to regularly sync its inventory with Metrc using the `/packages/{version}/active` and `/packages/{version}/inactive` endpoints. A scheduled job (e.g., hourly with a 5-minute buffer) should query the `LastModified` field to capture all changes and maintain up-to-date inventory records. The POS must also track outgoing transfers by querying `/transfers/{version}/outgoing`, then `/transfers/{version}/{id}/deliveries`, and finally `/transfers/{version}/deliveries/{id}/packages`.
+*   **Error Handling**: The POS must be designed to handle various HTTP status codes (400, 401, 403, 404, 413, 429, 500) and implement appropriate retry logic or alerts for API failures, particularly for rate limiting (429 Too Many Requests).
+*   **Record Matching**: When referencing Metrc objects, the POS can use either unique IDs or case-insensitive names, simplifying integration logic.
+*   **Illinois-Specific Operations**: The POS must comply with Illinois-specific regulations, as Metrc is the mandated seed-to-sale tracking system. While the API documentation provides general Metrc API details, the Illinois partner page highlights the requirement for all licensed cannabis businesses to use the system and the involvement of IDFPR and IDOA in managing the program. The POS should be aware that some state-sanctioned inventory movements may not be trackable via the API and might require manual reconciliation.",
+B11,B11,"What are the Illinois disciplinary action/enforcement archives across IDFPR, IDOA, and CROO as applicable for cannabis businesses?","The Illinois Department of Financial and Professional Regulation (IDFPR) publishes monthly enforcement reports. The March 2026 report, for example, lists disciplinary actions across various professions, but no specific cannabis-related disciplinary actions were found within this report [March 2026 Enforcement Actions (IDFPR) — https://idfpr.illinois.gov/content/dam/soi/en/web/idfpr/forms/discpln/2026-03enf.pdf].
+
+The 2025 Annual Cannabis Report, compiled by the Cannabis Regulation Oversight Office (CROO), provides an overview of activities from IDFPR and the Illinois Department of Agriculture (IDOA) concerning cannabis regulation [2025 Annual Cannabis Report (CROO) — https://www.ilga.gov/Documents/Reports/ReportsSubmitted/6159RSGAEmail13573RSGAAttach2025%20Final%20Combined%20Annual%20Report.pdf].
+
+For IDFPR, the report indicates:
+- 351 inspections conducted in FY2023
+- 527 inspections conducted in FY2024
+- 625 inspections conducted in FY2025
+- No mandatory recalls of cannabis or cannabis products issued in FY2023, FY2024, or FY2025 [2025 Annual Cannabis Report (CROO) — https://www.ilga.gov/Documents/Reports/ReportsSubmitted/6159RSGAEmail13573RSGAAttach2025%20Final%20Combined%20Annual%20Report.pdf, page 16].
+
+For IDOA, the report indicates:
+- 1,173 inspections conducted in FY2023
+- 1,485 inspections conducted in FY2024
+- 1,956 inspections conducted in FY2025
+- $0 in fines collected in FY2023, FY2024, and FY2025
+- 0 fines issued in FY2023, FY2024, and FY2025
+- 0 cultivation center, craft grower, infuser, and transporter licenses subject to disciplinary action in FY2023, FY2024, and FY2025 [2025 Annual Cannabis Report (CROO) — https://www.ilga.gov/Documents/Reports/ReportsSubmitted/6159RSGAEmail13573RSGAAttach2025%20Final%20Combined%20Annual%20Report.pdf, page 38].
+
+The Cannabis Regulation Oversight Office (CROO) coordinates regulatory efforts but does not appear to directly issue disciplinary actions; rather, it compiles reports from the agencies that do [Cannabis Regulation Oversight Office — https://cannabis.illinois.gov/].
+
+No specific archives detailing individual cannabis business disciplinary actions or enforcement cases were found in the reviewed primary sources from IDFPR, IDOA, or CROO.","- IDFPR Consolidated Reports — https://idfpr.illinois.gov/news/disciplines/discreports.html
+- March 2026 Enforcement Actions (IDFPR) — https://idfpr.illinois.gov/content/dam/soi/en/web/idfpr/forms/discpln/2026-03enf.pdf
+- 2025 Annual Cannabis Report (CROO) — https://www.ilga.gov/Documents/Reports/ReportsSubmitted/6159RSGAEmail13573RSGAAttach2025%20Final%20Combined%20Annual%20Report.pdf","IDFPR Consolidated Reports are monthly. The 2025 Annual Cannabis Report covers FY2025 (July 1, 2024 - June 30, 2025) and previous fiscal years as noted in the report.",High. Information directly extracted from official Illinois government reports.,"- Specific details of disciplinary actions taken against individual cannabis businesses by IDFPR, beyond general inspection numbers.
+- A centralized, searchable database of cannabis-specific disciplinary actions across all agencies (IDFPR, IDOA, CROO).","The lack of publicly available detailed disciplinary actions for cannabis businesses from IDFPR and IDOA suggests that a POS system would not need to integrate with a public disciplinary database for real-time checks. However, the mention of 'Dispensing Organization Inspections and Disciplinary Action' and 'Cultivation Center, Craft Grower, Infuser, and Transporter Inspections and Disciplinary Action' in the 2025 Annual Cannabis Report indicates that inspections are ongoing. A POS system should ensure compliance with all regulations to avoid potential future disciplinary actions, even if specific past actions are not easily accessible. The IDOA report explicitly states no fines or license revocations for cannabis businesses in FY2023-FY2025, which implies a low historical risk of enforcement actions impacting POS operations directly during those periods.",

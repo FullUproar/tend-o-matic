@@ -1,0 +1,490 @@
+// Tend-O-Matic multi-tenant Prisma schema (Phase 0).
+//
+// Every tenant-scoped table carries tenant_id and is RLS-isolated by a
+// session-set GUC (app.tenant_id). See migrations/20260514000001_rls/
+// migration.sql for the policies. The application MUST wrap every
+// database interaction in `withTenant(prisma, tenantId, ...)` (see
+// packages/db/src/tenant-context.ts) so policies see the GUC.
+//
+// Super-admin (portal cross-tenant work) connects with a separate DB
+// role granted BYPASSRLS. That role's connection string is a deploy-
+// time configuration concern and is not modeled here.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum LicenseType {
+  ADULT_USE
+  MEDICAL
+  DUAL
+
+  @@map("license_type")
+}
+
+enum Jurisdiction {
+  MI
+  IL
+
+  @@map("jurisdiction")
+}
+
+enum UserRole {
+  BUDTENDER
+  MANAGER
+  ADMIN
+
+  @@map("user_role")
+}
+
+enum DeviceKind {
+  TILL
+  MANAGER_PHONE
+  KIOSK
+  BACKOFFICE
+
+  @@map("device_kind")
+}
+
+enum ProductCategory {
+  FLOWER
+  CONCENTRATE
+  INFUSED
+  EDIBLE
+  PRE_ROLL
+  TOPICAL
+  IMMATURE_PLANT
+  OTHER
+
+  @@map("product_category")
+}
+
+enum PackageStatus {
+  AVAILABLE
+  HOLD
+  RECALLED
+  DEPLETED
+  RETURNED
+
+  @@map("package_status")
+}
+
+enum ManifestStatus {
+  PENDING
+  RECEIVED
+  REJECTED
+  PARTIAL
+
+  @@map("manifest_status")
+}
+
+enum ManifestItemStatus {
+  ACCEPTED
+  REJECTED
+  DAMAGED
+  CHILD_CREATED
+
+  @@map("manifest_item_status")
+}
+
+enum CustomerKind {
+  MI_ADULT_USE
+  MI_MED_PATIENT
+  MI_MED_CAREGIVER
+  IL_ADULT_USE_RESIDENT
+  IL_ADULT_USE_NONRESIDENT
+  IL_MED_PATIENT
+
+  @@map("customer_kind")
+}
+
+enum SaleStatus {
+  OPEN
+  COMPLETE
+  VOIDED
+
+  @@map("sale_status")
+}
+
+enum TenderType {
+  CASH
+  CASHLESS_ATM
+  ACH
+  OTHER
+
+  @@map("tender_type")
+}
+
+enum MetrcOutboxStatus {
+  QUEUED
+  IN_FLIGHT
+  SENT
+  FAILED
+
+  @@map("metrc_outbox_status")
+}
+
+enum ManagerOverrideStatus {
+  REQUESTED
+  GRANTED
+  DENIED
+  EXPIRED
+
+  @@map("manager_override_status")
+}
+
+// ---------- Tables ----------
+
+model Tenant {
+  id                      String       @id @default(uuid()) @db.Uuid
+  name                    String
+  slug                    String       @unique
+  licenseNo               String       @map("license_no")
+  licenseType             LicenseType  @map("license_type")
+  jurisdiction            Jurisdiction
+  locality                String?
+  timezone                String       @default("America/Detroit")
+  metrcApiKeyEnc          String?      @map("metrc_api_key_enc")
+  enabledPaymentProviders String[]     @default([]) @map("enabled_payment_providers")
+  featureFlags            Json         @default("{}") @map("feature_flags")
+  createdAt               DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt               DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt               DateTime?    @map("deleted_at") @db.Timestamptz
+
+  users            User[]
+  locations        Location[]
+  devices          Device[]
+  products         Product[]
+  packages         Package[]
+  manifests        Manifest[]
+  manifestItems    ManifestItem[]
+  customers        Customer[]
+  sales            Sale[]
+  saleItems        SaleItem[]
+  payments         Payment[]
+  auditLog         AuditLog[]
+  metrcOutbox      MetrcOutboxRow[]
+  managerOverrides ManagerOverride[]
+
+  @@map("tenant")
+}
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  tenantId     String    @map("tenant_id") @db.Uuid
+  email        String
+  passwordHash String    @map("password_hash")
+  pinHash      String?   @map("pin_hash")
+  name         String?
+  role         UserRole
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant            Tenant            @relation(fields: [tenantId], references: [id])
+  salesAsCashier    Sale[]            @relation("SaleCashier")
+  salesVoided       Sale[]            @relation("SaleVoider")
+  manifestsReceived Manifest[]
+  auditEntries      AuditLog[]
+  overridesAsRequester ManagerOverride[] @relation("OverrideRequester")
+  overridesAsManager   ManagerOverride[] @relation("OverrideManager")
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@map("user")
+}
+
+model Location {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  name         String
+  licenseNo    String   @map("license_no")
+  addressLine1 String?  @map("address_line1")
+  addressLine2 String?  @map("address_line2")
+  city         String?
+  state        String?
+  postalCode   String?  @map("postal_code")
+  timezone     String
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  devices   Device[]
+  packages  Package[]
+  manifests Manifest[]
+  sales     Sale[]
+
+  @@index([tenantId])
+  @@map("location")
+}
+
+model Device {
+  id           String     @id @default(uuid()) @db.Uuid
+  tenantId     String     @map("tenant_id") @db.Uuid
+  locationId   String?    @map("location_id") @db.Uuid
+  kind         DeviceKind
+  name         String
+  publicKey    String?    @map("public_key")
+  registeredAt DateTime   @default(now()) @map("registered_at") @db.Timestamptz
+  lastSeenAt   DateTime?  @map("last_seen_at") @db.Timestamptz
+  revokedAt    DateTime?  @map("revoked_at") @db.Timestamptz
+
+  tenant    Tenant            @relation(fields: [tenantId], references: [id])
+  location  Location?         @relation(fields: [locationId], references: [id])
+  overrides ManagerOverride[]
+
+  @@index([tenantId])
+  @@map("device")
+}
+
+model Product {
+  id          String          @id @default(uuid()) @db.Uuid
+  tenantId    String          @map("tenant_id") @db.Uuid
+  sku         String
+  name        String
+  category    ProductCategory
+  brand       String?
+  description String?
+  thcMg       Decimal?        @map("thc_mg") @db.Decimal(10, 3)
+  cbdMg       Decimal?        @map("cbd_mg") @db.Decimal(10, 3)
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  packages Package[]
+
+  @@unique([tenantId, sku])
+  @@index([tenantId])
+  @@map("product")
+}
+
+model Package {
+  id              String        @id @default(uuid()) @db.Uuid
+  tenantId        String        @map("tenant_id") @db.Uuid
+  locationId      String        @map("location_id") @db.Uuid
+  productId       String        @map("product_id") @db.Uuid
+  metrcTag        String        @map("metrc_tag")
+  qty             Decimal       @db.Decimal(14, 4)
+  qtyUnit         String        @map("qty_unit")
+  status          PackageStatus @default(AVAILABLE)
+  tested          Boolean       @default(false)
+  labeled         Boolean       @default(false)
+  recalled        Boolean       @default(false)
+  coaUrl          String?       @map("coa_url")
+  parentPackageId String?       @map("parent_package_id") @db.Uuid
+  receivedAt      DateTime?     @map("received_at") @db.Timestamptz
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
+  location       Location       @relation(fields: [locationId], references: [id])
+  product        Product        @relation(fields: [productId], references: [id])
+  parent         Package?       @relation("PackageChildren", fields: [parentPackageId], references: [id])
+  children       Package[]      @relation("PackageChildren")
+  manifestItems  ManifestItem[] @relation("ManifestItemPackage")
+  manifestChild  ManifestItem[] @relation("ManifestItemChildPackage")
+  saleItems      SaleItem[]
+
+  @@unique([tenantId, metrcTag])
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@map("package")
+}
+
+model Manifest {
+  id                 String         @id @default(uuid()) @db.Uuid
+  tenantId           String         @map("tenant_id") @db.Uuid
+  locationId         String         @map("location_id") @db.Uuid
+  supplierLicenseNo  String         @map("supplier_license_no")
+  metrcManifestNo    String?        @map("metrc_manifest_no")
+  status             ManifestStatus @default(PENDING)
+  receivedAt         DateTime?      @map("received_at") @db.Timestamptz
+  receivedByUserId   String?        @map("received_by_user_id") @db.Uuid
+  notes              String?
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  location       Location        @relation(fields: [locationId], references: [id])
+  receivedBy     User?           @relation(fields: [receivedByUserId], references: [id])
+  items          ManifestItem[]
+
+  @@index([tenantId])
+  @@map("manifest")
+}
+
+model ManifestItem {
+  id              String             @id @default(uuid()) @db.Uuid
+  tenantId        String             @map("tenant_id") @db.Uuid // denormalized for RLS
+  manifestId      String             @map("manifest_id") @db.Uuid
+  sourceTag       String             @map("source_tag")
+  status          ManifestItemStatus @default(ACCEPTED)
+  packageId       String?            @map("package_id") @db.Uuid
+  childPackageId  String?            @map("child_package_id") @db.Uuid
+  notes           String?
+
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  manifest     Manifest @relation(fields: [manifestId], references: [id], onDelete: Cascade)
+  package      Package? @relation("ManifestItemPackage", fields: [packageId], references: [id])
+  childPackage Package? @relation("ManifestItemChildPackage", fields: [childPackageId], references: [id])
+
+  @@index([tenantId])
+  @@index([manifestId])
+  @@map("manifest_item")
+}
+
+model Customer {
+  id                  String       @id @default(uuid()) @db.Uuid
+  tenantId            String       @map("tenant_id") @db.Uuid
+  kind                CustomerKind
+  dobEnc              String?      @map("dob_enc")
+  idHash              String?      @map("id_hash")
+  registryIdHash      String?      @map("registry_id_hash")
+  caregiverIdHash     String?      @map("caregiver_id_hash")
+  servedPatientIdHash String?      @map("served_patient_id_hash")
+  lastIdScanAt        DateTime?    @map("last_id_scan_at") @db.Timestamptz
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  sales  Sale[]
+
+  @@index([tenantId])
+  @@map("customer")
+}
+
+model Sale {
+  id                 String        @id @default(uuid()) @db.Uuid
+  tenantId           String        @map("tenant_id") @db.Uuid
+  locationId         String        @map("location_id") @db.Uuid
+  cashierUserId      String        @map("cashier_user_id") @db.Uuid
+  customerId         String?       @map("customer_id") @db.Uuid
+  customerKindAtSale CustomerKind? @map("customer_kind_at_sale")
+  rulesetVersion     String        @map("ruleset_version")
+  status             SaleStatus    @default(OPEN)
+  subtotalCents      BigInt        @default(0) @map("subtotal_cents")
+  taxCents           BigInt        @default(0) @map("tax_cents")
+  totalCents         BigInt        @default(0) @map("total_cents")
+  openedAt           DateTime      @default(now()) @map("opened_at") @db.Timestamptz
+  closedAt           DateTime?     @map("closed_at") @db.Timestamptz
+  voidedAt           DateTime?     @map("voided_at") @db.Timestamptz
+  voidedByUserId     String?       @map("voided_by_user_id") @db.Uuid
+  voidReason         String?       @map("void_reason")
+
+  tenant     Tenant            @relation(fields: [tenantId], references: [id])
+  location   Location          @relation(fields: [locationId], references: [id])
+  cashier    User              @relation("SaleCashier", fields: [cashierUserId], references: [id])
+  voider     User?             @relation("SaleVoider", fields: [voidedByUserId], references: [id])
+  customer   Customer?         @relation(fields: [customerId], references: [id])
+  items      SaleItem[]
+  payments   Payment[]
+  overrides  ManagerOverride[]
+
+  @@index([tenantId])
+  @@index([tenantId, locationId, openedAt])
+  @@map("sale")
+}
+
+model SaleItem {
+  id              String          @id @default(uuid()) @db.Uuid
+  tenantId        String          @map("tenant_id") @db.Uuid // denormalized
+  saleId          String          @map("sale_id") @db.Uuid
+  packageId       String          @map("package_id") @db.Uuid
+  category        ProductCategory
+  qty             Decimal         @db.Decimal(14, 4)
+  weightValue     Decimal         @map("weight_value") @db.Decimal(14, 4)
+  weightUnit      String          @map("weight_unit")
+  unitPriceCents  BigInt          @map("unit_price_cents")
+  lineTotalCents  BigInt          @map("line_total_cents")
+  equivalentGrams Decimal?        @map("equivalent_grams") @db.Decimal(14, 4)
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  sale    Sale    @relation(fields: [saleId], references: [id])
+  package Package @relation(fields: [packageId], references: [id])
+
+  @@index([tenantId])
+  @@index([saleId])
+  @@map("sale_item")
+}
+
+model Payment {
+  id          String     @id @default(uuid()) @db.Uuid
+  tenantId    String     @map("tenant_id") @db.Uuid
+  saleId      String     @map("sale_id") @db.Uuid
+  tenderType  TenderType @map("tender_type")
+  amountCents BigInt     @map("amount_cents")
+  providerRef String?    @map("provider_ref")
+  capturedAt  DateTime   @default(now()) @map("captured_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  sale   Sale   @relation(fields: [saleId], references: [id])
+
+  @@index([tenantId])
+  @@index([saleId])
+  @@map("payment")
+}
+
+model AuditLog {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.Uuid
+  actorUserId   String?  @map("actor_user_id") @db.Uuid
+  entityType    String   @map("entity_type")
+  entityId      String   @map("entity_id") @db.Uuid
+  action        String
+  payload       Json     @default("{}")
+  at            DateTime @default(now()) @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  actor  User?  @relation(fields: [actorUserId], references: [id])
+
+  @@index([tenantId, at])
+  @@index([tenantId, entityType, entityId])
+  @@map("audit_log")
+}
+
+model MetrcOutboxRow {
+  id              String             @id @default(uuid()) @db.Uuid
+  tenantId        String             @map("tenant_id") @db.Uuid
+  operation       String
+  payload         Json
+  idempotencyKey  String             @map("idempotency_key")
+  attempts        Int                @default(0)
+  lastError       String?            @map("last_error")
+  status          MetrcOutboxStatus  @default(QUEUED)
+  queuedAt        DateTime           @default(now()) @map("queued_at") @db.Timestamptz
+  sentAt          DateTime?          @map("sent_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, status])
+  @@map("metrc_outbox")
+}
+
+model ManagerOverride {
+  id                       String                 @id @default(uuid()) @db.Uuid
+  tenantId                 String                 @map("tenant_id") @db.Uuid
+  saleId                   String?                @map("sale_id") @db.Uuid
+  requestedByUserId        String                 @map("requested_by_user_id") @db.Uuid
+  grantedByManagerUserId   String?                @map("granted_by_manager_user_id") @db.Uuid
+  reasonCode               String                 @map("reason_code")
+  status                   ManagerOverrideStatus  @default(REQUESTED)
+  phoneDeviceId            String?                @map("phone_device_id") @db.Uuid
+  requestedAt              DateTime               @default(now()) @map("requested_at") @db.Timestamptz
+  grantedAt                DateTime?              @map("granted_at") @db.Timestamptz
+  deniedAt                 DateTime?              @map("denied_at") @db.Timestamptz
+  expiresAt                DateTime?              @map("expires_at") @db.Timestamptz
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  sale        Sale?    @relation(fields: [saleId], references: [id])
+  requestedBy User     @relation("OverrideRequester", fields: [requestedByUserId], references: [id])
+  manager     User?    @relation("OverrideManager", fields: [grantedByManagerUserId], references: [id])
+  phoneDevice Device?  @relation(fields: [phoneDeviceId], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@map("manager_override")
+}

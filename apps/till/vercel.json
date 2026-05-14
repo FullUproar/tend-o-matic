@@ -1,4 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile --filter=@tend-o-matic/till...",
+  "buildCommand": "cd ../.. && pnpm --filter @tend-o-matic/till build"
 }
