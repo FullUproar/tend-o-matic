@@ -3,6 +3,7 @@
 import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requirePermission } from "@tend-o-matic/auth-runtime";
 import { auth } from "../../lib/auth";
 
 const prisma = new PrismaClient();
@@ -58,18 +59,14 @@ function parseForm(form: FormData): ProductWriteInput {
   };
 }
 
-async function requireManager() {
+async function requireProductWrite() {
   const session = await auth();
-  if (!session?.user) throw new Error("Not signed in.");
-  const role = session.user.role;
-  if (role !== "MANAGER" && role !== "ADMIN") {
-    throw new Error(`Insufficient role: ${role}`);
-  }
+  requirePermission(session, "backoffice.product.write");
   return session.user;
 }
 
 export async function createProductAction(form: FormData) {
-  const user = await requireManager();
+  const user = await requireProductWrite();
   const input = parseForm(form);
   if (!input.sku || !input.name || !input.category) {
     throw new Error("sku, name, and category are required.");
@@ -99,7 +96,7 @@ export async function createProductAction(form: FormData) {
 }
 
 export async function updateProductAction(productId: string, form: FormData) {
-  const user = await requireManager();
+  const user = await requireProductWrite();
   const input = parseForm(form);
   if (!input.sku || !input.name || !input.category) {
     throw new Error("sku, name, and category are required.");
@@ -130,7 +127,7 @@ export async function setProductActiveAction(
   productId: string,
   isActive: boolean,
 ) {
-  const user = await requireManager();
+  const user = await requireProductWrite();
   await prisma.product.update({
     where: { id: productId, tenantId: user.tenantId },
     data: { isActive },

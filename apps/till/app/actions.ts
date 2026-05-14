@@ -2,6 +2,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { randomUUID } from "node:crypto";
+import { requirePermission } from "@tend-o-matic/auth-runtime";
 import { auth, signOut } from "../lib/auth";
 
 export async function signOutAction() {
@@ -105,11 +106,20 @@ async function ensureDemoPackage(
 export async function completeSaleAction(
   input: CompleteSaleInput,
 ): Promise<CompleteSaleResponse> {
-  // 0. Session-driven identity. Client never gets to spoof tenantId or
-  // cashierUserId; both come from the signed-in user.
+  // 0. Session-driven identity + permission check. Client never gets to
+  // spoof tenantId or cashierUserId; both come from the signed-in user,
+  // and the till.sale.start permission gates the action server-side.
   const session = await auth();
-  if (!session?.user) {
-    return { ok: false, reason: "Not signed in." };
+  try {
+    requirePermission(session, "till.sale.start");
+  } catch (e) {
+    return {
+      ok: false,
+      reason:
+        e instanceof Error
+          ? e.message
+          : "Permission denied to start a till sale.",
+    };
   }
   const tenantId = session.user.tenantId;
   const cashierUserId = session.user.id;
