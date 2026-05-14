@@ -51,11 +51,20 @@ export type ReceiptBlock = {
 // ReceiptLine + ReceiptContent are the rendered-output types that
 // renderReceipt produces; ReceiptBlock above is the SPEC the renderer
 // must satisfy.
+export type ReceiptLineTax = {
+  label: string;
+  amountCents: number;
+};
+
 export type ReceiptLine = {
   description: string;
   qty: number;
   unitPriceCents: number;
   lineTotalCents: number;
+  // Per-line tax components. Populated whenever the tax engine returned
+  // a perLine breakdown for this line; required for IL CRTA "segregated
+  // tax per item" receipts.
+  taxes?: ReadonlyArray<ReceiptLineTax>;
 };
 
 export type ReceiptContent = {

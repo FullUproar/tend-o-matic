@@ -62,10 +62,24 @@ export type TaxLine = {
   amountCents: number;
 };
 
+// Per-line tax attribution. Required for IL CRTA receipt rule
+// "segregated tax per item". Each entry maps a cart line (by index in
+// cart.lines) to the list of tax components that touched it.
+export type PerLineTax = {
+  lineIndex: number;
+  packageId: string;
+  // Tax attributions for this specific line (typically just the
+  // applicable excise rate; subtotal-base taxes like state ROT are
+  // pro-rated into here too so the receipt prints a complete number).
+  taxes: ReadonlyArray<TaxLine>;
+  totalTaxCents: number;
+};
+
 export type TaxBreakdown = {
   rulesetVersion: string;
   subtotalCents: number;
   lines: ReadonlyArray<TaxLine>;
+  perLine: ReadonlyArray<PerLineTax>;
   totalTaxCents: number;
   grandTotalCents: number; // subtotal + totalTax
 };

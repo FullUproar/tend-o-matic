@@ -101,9 +101,13 @@ function fieldPopulated(
       // Not a medical customer — field doesn't apply, treat as populated.
       return true;
     }
+    case "ITEM_TAX_BREAKDOWN_PER_LINE":
+      // Per-line tax attribution from tax-engine; satisfied when the
+      // breakdown carries one entry per line and totals match.
+      if (tax.perLine.length !== cart.lines.length) return false;
+      return true;
     case "BARCODE":
     case "RETURN_POLICY_TEXT":
-    case "ITEM_TAX_BREAKDOWN_PER_LINE":
       // Not yet implemented by the renderer. If a ruleset requires these
       // fields and they're not yet emitted, render refuses.
       return false;
@@ -145,13 +149,23 @@ export function renderReceipt(
     }
   }
 
-  // Assemble the rendered output.
-  const lines: ReceiptLine[] = cart.lines.map((l) => ({
-    description: `${l.category} (${l.weight.value}${l.weight.unit})`,
-    qty: l.qty,
-    unitPriceCents: l.unitPriceCents,
-    lineTotalCents: l.unitPriceCents * l.qty,
-  }));
+  // Assemble the rendered output. Per-line tax components are attached
+  // to each line so that ESC/POS rendering can print them indented
+  // below the line, satisfying IL CRTA "segregated tax per item".
+  const lines: ReceiptLine[] = cart.lines.map((l, i) => {
+    const perLine = tax.perLine[i];
+    const taxes =
+      perLine && perLine.taxes.length > 0
+        ? perLine.taxes.map((t) => ({ label: t.label, amountCents: t.amountCents }))
+        : undefined;
+    return {
+      description: `${l.category} (${l.weight.value}${l.weight.unit})`,
+      qty: l.qty,
+      unitPriceCents: l.unitPriceCents,
+      lineTotalCents: l.unitPriceCents * l.qty,
+      ...(taxes ? { taxes } : {}),
+    };
+  });
 
   const header: string[] = [
     ctx.store.name,
@@ -227,6 +241,14 @@ export function formatReceiptAsText(
         formatCents(line.lineTotalCents),
       ),
     );
+    // Per-line tax components (IL CRTA segregation requirement).
+    if (line.taxes) {
+      for (const t of line.taxes) {
+        out.push(
+          twoColumn(width)(`    + ${t.label}`, formatCents(t.amountCents)),
+        );
+      }
+    }
   }
   out.push(sep);
   out.push(twoColumn(width)("Subtotal", formatCents(receipt.totals.subtotalCents)));

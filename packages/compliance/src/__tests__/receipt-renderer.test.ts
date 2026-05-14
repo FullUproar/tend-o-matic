@@ -130,7 +130,7 @@ describe("renderReceipt — required-field validation", () => {
     expect(r.ok).toBe(false);
   });
 
-  it("IL renderer refuses because ITEM_TAX_BREAKDOWN_PER_LINE is required but not yet implemented", () => {
+  it("IL renderer emits per-line tax attribution (CRTA segregation requirement)", () => {
     const ilCart: Cart = {
       tenantId: "t1",
       locationId: "l1",
@@ -144,10 +144,19 @@ describe("renderReceipt — required-field validation", () => {
     expect(tax.ok).toBe(true);
     if (!tax.ok) return;
     const r = renderReceipt(ilCart, tax.breakdown, baseContext());
-    expect(r.ok).toBe(false);
-    if (!r.ok && r.reason.code === "TAX_INPUT_MISSING") {
-      expect(r.reason.missingField).toBe("receipt.ITEM_TAX_BREAKDOWN_PER_LINE");
-    }
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.receipt.lines).toHaveLength(1);
+    // The single line should carry per-line tax components: excise + ROT.
+    const line = r.receipt.lines[0]!;
+    expect(line.taxes).toBeDefined();
+    expect(line.taxes!.length).toBeGreaterThanOrEqual(2);
+    const codes = line.taxes!.map((t) => t.label);
+    expect(codes.some((c) => /Excise/i.test(c))).toBe(true);
+    expect(codes.some((c) => /ROT/i.test(c))).toBe(true);
+    // Sum of per-line taxes equals total tax (single-line cart, no rounding split).
+    const sum = line.taxes!.reduce((a, t) => a + t.amountCents, 0);
+    expect(sum).toBe(r.receipt.totals.taxCents);
   });
 });
 

@@ -1,6 +1,12 @@
 import type { Cart, LineItem } from "./cart";
 import type { RefusalReason } from "./refusal";
-import type { TaxBreakdown, TaxLine, TaxRate, TaxRounding } from "./tax";
+import type {
+  PerLineTax,
+  TaxBreakdown,
+  TaxLine,
+  TaxRate,
+  TaxRounding,
+} from "./tax";
 
 // Rounds a cents float toward the nearest integer cent (banker's rounding
 // avoided in favor of standard half-up because cash registers do half-up).
@@ -95,6 +101,18 @@ export function computeTaxBreakdown(
   ];
 
   const taxLines: TaxLine[] = [];
+  // Per-line attribution map: lineIndex → list of {code,label,amount}.
+  // SUBTOTAL-based rates pro-rate across lines proportionally to each
+  // line's contribution to the subtotal.
+  const perLineMap = new Map<number, TaxLine[]>();
+  const ensureLineEntries = (idx: number): TaxLine[] => {
+    let arr = perLineMap.get(idx);
+    if (!arr) {
+      arr = [];
+      perLineMap.set(idx, arr);
+    }
+    return arr;
+  };
   let priorStateTaxCents = 0;
 
   for (const rate of allRates) {
@@ -103,7 +121,10 @@ export function computeTaxBreakdown(
     let amount = 0;
 
     if (rate.base === "LINE_PRICE") {
-      for (const line of cart.lines) {
+      // Per-line attribution is exact: each line's tax is computed and
+      // attributed individually.
+      for (let i = 0; i < cart.lines.length; i++) {
+        const line = cart.lines[i]!;
         const a = rateAppliesToLine(rate, line);
         if (!a.applies) {
           if (a.refusal) return { ok: false, reason: a.refusal };
@@ -112,14 +133,56 @@ export function computeTaxBreakdown(
         const lineTotal = lineTotalCents(line);
         const taxOnLine = applyRounding(lineTotal * rate.rate, rounding);
         amount += taxOnLine;
+        if (roundCents(taxOnLine) > 0) {
+          ensureLineEntries(i).push({
+            code: rate.code,
+            label: rate.label,
+            amountCents: roundCents(taxOnLine),
+          });
+        }
       }
     } else if (rate.base === "SUBTOTAL") {
       // SUBTOTAL bases ignore line-level filters; they apply to the
-      // full subtotal regardless of category/THC%. (If a future rule
-      // needs subtotal-with-filter, the data shape would need to grow.)
+      // full subtotal regardless of category/THC%.
       amount = subtotalCents * rate.rate;
+      // Pro-rate per line by share of subtotal. Last line absorbs any
+      // rounding remainder so the aggregate matches `amount` exactly.
+      const rounded = roundCents(amount);
+      let attributed = 0;
+      for (let i = 0; i < cart.lines.length; i++) {
+        const line = cart.lines[i]!;
+        const isLast = i === cart.lines.length - 1;
+        const share = isLast
+          ? rounded - attributed
+          : Math.round((rounded * lineTotalCents(line)) / Math.max(subtotalCents, 1));
+        if (share > 0) {
+          ensureLineEntries(i).push({
+            code: rate.code,
+            label: rate.label,
+            amountCents: share,
+          });
+        }
+        attributed += share;
+      }
     } else if (rate.base === "SUBTOTAL_PLUS_PRIOR_STATE_TAX") {
       amount = (subtotalCents + priorStateTaxCents) * rate.rate;
+      const rounded = roundCents(amount);
+      let attributed = 0;
+      for (let i = 0; i < cart.lines.length; i++) {
+        const line = cart.lines[i]!;
+        const isLast = i === cart.lines.length - 1;
+        const share = isLast
+          ? rounded - attributed
+          : Math.round((rounded * lineTotalCents(line)) / Math.max(subtotalCents, 1));
+        if (share > 0) {
+          ensureLineEntries(i).push({
+            code: rate.code,
+            label: rate.label,
+            amountCents: share,
+          });
+        }
+        attributed += share;
+      }
     }
 
     const rounded = roundCents(amount);
@@ -137,12 +200,24 @@ export function computeTaxBreakdown(
 
   const totalTaxCents = taxLines.reduce((a, l) => a + l.amountCents, 0);
 
+  // Assemble per-line breakdown in input order.
+  const perLine: PerLineTax[] = cart.lines.map((line, i) => {
+    const taxes = perLineMap.get(i) ?? [];
+    return {
+      lineIndex: i,
+      packageId: line.packageId,
+      taxes,
+      totalTaxCents: taxes.reduce((a, l) => a + l.amountCents, 0),
+    };
+  });
+
   return {
     ok: true,
     breakdown: {
       rulesetVersion: cart.ruleset.version,
       subtotalCents,
       lines: taxLines,
+      perLine,
       totalTaxCents,
       grandTotalCents: subtotalCents + totalTaxCents,
     },
