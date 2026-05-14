@@ -183,4 +183,109 @@ export const MI_2026_05_14: Ruleset = {
       ],
     },
   },
+  // Receipt requirements (round-2 A5). MI doesn't have a comprehensive
+  // single-source receipt-content rule; MCL 445.319 ("describe the item
+  // and state the price charged") is the floor + MCL 333.27958
+  // ("no PII beyond age ID") restricts what we may include.
+  receiptBlock: {
+    requirements: [
+      { field: "STORE_NAME", required: true },
+      { field: "STORE_ADDRESS", required: true },
+      { field: "LICENSE_NUMBER", required: true },
+      { field: "DATETIME", required: true },
+      { field: "RECEIPT_ID", required: true },
+      {
+        field: "ITEM_DESCRIPTION",
+        required: true,
+        note: "MCL 445.319: 'describe the item' — minimum floor",
+      },
+      { field: "ITEM_QTY", required: true },
+      { field: "ITEM_UNIT_PRICE", required: true },
+      { field: "ITEM_LINE_TOTAL", required: true },
+      { field: "SUBTOTAL", required: true },
+      { field: "TAX_TOTAL_PER_RATE", required: true },
+      { field: "TAX_TOTAL_AGGREGATE", required: true },
+      { field: "GRAND_TOTAL", required: true },
+      { field: "TENDER_TYPE", required: true },
+      { field: "TENDER_AMOUNT", required: true },
+      { field: "CHANGE_DUE", required: true },
+    ],
+    notes: [
+      "MCL 333.27958: CRA prohibited from requiring PII beyond age ID. Do not print full name, DOB, address, or photo.",
+      "Medical sales: registry-card hash may be included but only the hashed form — never the raw registry ID.",
+    ],
+    provenance: {
+      status: "secondary-cite-only",
+      sources: [
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "MCL 445.319 (eff. 2011-09-01) — receipt 'describe item + state price'",
+        },
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "MCL 333.27958 (eff. 2023-10-19) — PII restriction on cannabis transactions",
+        },
+      ],
+    },
+  },
+  // Returns policy (round-2 A6 → Mich Admin Code R. 420.214c eff. 2022-03-07).
+  returnsPolicy: {
+    permittedScenarios: ["ADVERSE_REACTION", "DEFECTIVE", "RECALL"],
+    mayResell: false,
+    destroyWithinDays: 90,
+    driverAcceptsReturns: false,
+    seedToSaleAction:
+      "Tag returned product as waste in Metrc; create new tagged waste package; track destruction event.",
+    externalReportWithinDays: null,
+    notes: [
+      "R. 420.214c: returns permitted only for adverse reaction or defective product. No general 'change of mind' returns.",
+      "Expired product may be returned to the upstream processor under a separate manifest workflow (not a customer return).",
+      "Delivery drivers may NOT accept returns at point of delivery — must be returned to the licensed retail location.",
+      "Returned product cannot be resold or repackaged.",
+    ],
+    provenance: {
+      status: "agency-confirmed",
+      sources: [
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "Mich. Admin. Code R. 420.214c — Product returns. Eff. 2022-03-07",
+        },
+      ],
+    },
+  },
+  // Recalls policy (round-2 A10 → R. 420.214a / R. 420.214b / Marihuana
+  // Rules / MI-Bulletin-49 eff. 2022-05-12).
+  recallsPolicy: {
+    notifyRegulatorsWithinHours: 24,
+    notifyAgencies: ["CRA"],
+    quarantineMinHours: null,
+    destroyWithinDays: 90,
+    systemEntryRequiredBeforeDestruction: true,
+    preSaleHoldCheckRequired: true,
+    metrcAdverseEventMenu: "Patient",
+    notes: [
+      "R. 420.214b: 1-business-day CRA notification on recall detection.",
+      "Pre-sale workflow MUST verify package status against Metrc (no holds, no recalls) on every transaction.",
+      "MI-Bulletin-49 (eff. 2022-05-12): Metrc adverse-event submissions use the 'Patient' menu for BOTH adult-use and medical responses — non-obvious integration detail.",
+      "Recalled product must be tagged and destroyed within 90 days; destruction event recorded in Metrc.",
+    ],
+    provenance: {
+      status: "agency-confirmed",
+      sources: [
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "Mich. Admin. Code R. 420.214b — Recall notification (eff. 2022-03-07)",
+        },
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "MI-Bulletin-49 (CRA, eff. 2022-05-12) — Metrc adverse-response submission via Patient menu",
+        },
+      ],
+    },
+  },
 };

@@ -222,4 +222,107 @@ export const IL_2026_05_14: Ruleset = {
       ],
     },
   },
+  // Receipt requirements (round-2 B5 → 410 ILCS 705 transaction-data
+  // definition + "Electronic Cash Register" statutory definition).
+  // CRTA §65-38 ("zapper" felony) makes accurate transaction recording
+  // criminally relevant — receipt content is the customer-facing surface
+  // of that record.
+  receiptBlock: {
+    requirements: [
+      { field: "STORE_NAME", required: true },
+      { field: "STORE_ADDRESS", required: true },
+      { field: "LICENSE_NUMBER", required: true },
+      { field: "DATETIME", required: true },
+      { field: "RECEIPT_ID", required: true },
+      {
+        field: "ITEM_DESCRIPTION",
+        required: true,
+        note: "B5: 'bundled items must be separately identified by qty and price'",
+      },
+      { field: "ITEM_QTY", required: true },
+      { field: "ITEM_UNIT_PRICE", required: true },
+      { field: "ITEM_LINE_TOTAL", required: true },
+      {
+        field: "ITEM_TAX_BREAKDOWN_PER_LINE",
+        required: true,
+        note: "CRTA: segregated tax per item required",
+      },
+      { field: "SUBTOTAL", required: true },
+      { field: "TAX_TOTAL_PER_RATE", required: true },
+      { field: "TAX_TOTAL_AGGREGATE", required: true },
+      { field: "GRAND_TOTAL", required: true },
+      { field: "TENDER_TYPE", required: true },
+      { field: "TENDER_AMOUNT", required: true },
+      { field: "CHANGE_DUE", required: true },
+    ],
+    notes: [
+      "CRTA §65-38: 'automated sales suppression device / zapper / phantom-ware' is a Class 3-4 felony. POS records (including receipts) must be demonstrably immutable and accurate.",
+      "Tax must be segregated per item AND per rate aggregate on the printed receipt.",
+    ],
+    provenance: {
+      status: "agency-confirmed",
+      sources: [
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "410 ILCS 705 (CRTA, eff. 2019-06-25) — transaction-data definition + §65-38 sales-suppression criminal prohibition",
+        },
+      ],
+    },
+  },
+  // Returns policy (round-2 B6 → Ill. Admin. Code 1291.320 + 410 ILCS 705/15-90).
+  returnsPolicy: {
+    permittedScenarios: ["ADVERSE_REACTION", "DEFECTIVE", "RECALL", "MISLABELED"],
+    mayResell: false,
+    destroyWithinDays: null,
+    driverAcceptsReturns: false,
+    seedToSaleAction:
+      "Enter return in State Verification System (SVS / Metrc post-7/1/2025); manifest waste; destroy per §15-90.",
+    externalReportWithinDays: 5,
+    notes: [
+      "1291.320: returns must be entered in the State Verification System within 5 calendar days.",
+      "If seal is broken or product has left the premises, no resale permitted regardless of return reason.",
+      "Destruction follows 410 ILCS 705/15-90 procedure (witness, dual-control, etc.).",
+    ],
+    provenance: {
+      status: "agency-confirmed",
+      sources: [
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "Ill. Admin. Code tit. 68, § 1291.320 — Returns (eff. 2024-08-20)",
+        },
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "410 ILCS 705/15-90 — Destruction procedure",
+        },
+      ],
+    },
+  },
+  // Recalls policy (round-2 B6 → Ill. Admin. Code 1291.330).
+  recallsPolicy: {
+    notifyRegulatorsWithinHours: 24,
+    notifyAgencies: ["IDFPR", "IDOA", "DPH"],
+    quarantineMinHours: 72,
+    destroyWithinDays: null,
+    systemEntryRequiredBeforeDestruction: true,
+    preSaleHoldCheckRequired: true,
+    metrcAdverseEventMenu: null,
+    notes: [
+      "1291.330: 24-hour notification to IDFPR + IDOA + DPH (three agencies, simultaneous).",
+      "Minimum 72-hour quarantine before destruction.",
+      "Recalls must be entered in the State Verification System (SVS / Metrc post-7/1/2025) PRIOR to destruction event.",
+    ],
+    provenance: {
+      status: "agency-confirmed",
+      sources: [
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "Ill. Admin. Code tit. 68, § 1291.330 — Recalls (eff. 2024-08-20)",
+        },
+      ],
+    },
+  },
 };

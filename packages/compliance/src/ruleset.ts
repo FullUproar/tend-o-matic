@@ -4,6 +4,9 @@ import type { Limit } from "./limit";
 import type { EquivalencyTable } from "./equivalency";
 import type { Provenance } from "./provenance";
 import type { TaxBlock } from "./tax";
+import type { ReceiptBlock } from "./receipt";
+import type { ReturnPolicy } from "./returns";
+import type { RecallPolicy } from "./recalls";
 
 // A Ruleset is the dated, immutable encoding of the rules in force for
 // one jurisdiction at one point in time. Old rulesets are forever: a sale
@@ -30,5 +33,13 @@ export type Ruleset = {
   // RULESET_INSUFFICIENT_VERIFICATION when null. Each rate carries its
   // own customer/category/THC restrictions.
   taxBlock: TaxBlock | null;
-  // Receipt + promo blocks deliberately omitted; added in subsequent PRs.
+  // M1.4 blocks. Null = not yet populated (kernel/application refuses
+  // operations that depend on the block). All three are static data
+  // for the application to consume; no kernel math runs against them
+  // directly in v0.1.
+  receiptBlock: ReceiptBlock | null;
+  returnsPolicy: ReturnPolicy | null;
+  recallsPolicy: RecallPolicy | null;
+  // Promo block deliberately omitted; round-2 MI/IL flagged BOGO/loyalty
+  // as a counsel question.
 };

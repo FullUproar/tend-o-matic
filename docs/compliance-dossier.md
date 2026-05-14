@@ -156,20 +156,38 @@ Source: round-2 A4 (manus-2026-05-13 → michigan.gov/treasury + MCL 333.27963).
 
 ### Receipt requirements (MI)
 
+Source: round-2 A5 (MCL 445.319 + MCL 333.27958). Encoded in `packages/compliance/src/rulesets/mi-2026-05-14.ts` as `receiptBlock`.
+
 | Rule | Value | Status | Source chain |
 |---|---|---|---|
-| Required fields on CRA-compliant printed receipt | TODO | `todo` | — |
-| Required fields specific to medical receipts | TODO | `todo` | — |
-| Retention requirements | TODO | `todo` | — |
+| Required fields | STORE_NAME, STORE_ADDRESS, LICENSE_NUMBER, DATETIME, RECEIPT_ID, ITEM_DESCRIPTION, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_LINE_TOTAL, SUBTOTAL, TAX_TOTAL_PER_RATE, TAX_TOTAL_AGGREGATE, GRAND_TOTAL, TENDER_TYPE, TENDER_AMOUNT, CHANGE_DUE | `secondary-cite-only` | manus-2026-05-13 → MCL 445.319 (eff. 2011-09-01) |
+| PII restriction | No PII beyond age verification; medical registry IDs must be hashed | `secondary-cite-only` | manus-2026-05-13 → MCL 333.27958 (eff. 2023-10-19) |
+| Retention requirements | TODO — not extracted by round-2 | `todo` | — |
 
 ### Returns and voids (MI)
 
+Source: round-2 A6 → Mich. Admin. Code R. 420.214c (eff. 2022-03-07). Encoded in `mi-2026-05-14.ts` as `returnsPolicy`.
+
 | Rule | Value | Status | Source chain |
 |---|---|---|---|
-| Permitted return / exchange scenarios | TODO | `todo` | — |
-| Disposition of returned product (destruction vs restock) | TODO | `todo` | — |
-| Metrc reporting on returns / voids | TODO | `todo` | — |
-| Refund tendering rules (original tender vs cash; tax refund) | TODO | `todo` | — |
+| Permitted return scenarios | ADVERSE_REACTION, DEFECTIVE, RECALL only — no "change of mind" | `agency-confirmed` | manus-2026-05-13 → R. 420.214c |
+| Resale permitted | No — returned product is destroyed | `agency-confirmed` | (same) |
+| Destruction window | Within 90 days of return | `agency-confirmed` | (same) |
+| Delivery-driver returns | Prohibited — must return to licensed retail location | `agency-confirmed` | (same) |
+| Metrc seed-to-sale action | Tag as waste; create new waste-tagged package; track destruction event | `agency-confirmed` | (same) |
+| Refund tendering rules (original vs cash; tax refund) | TODO — not extracted by round-2 | `todo` | — |
+
+### Recalls (MI)
+
+Source: round-2 A10 → R. 420.214b + MI-Bulletin-49 (eff. 2022-05-12). Encoded as `recallsPolicy`.
+
+| Rule | Value | Status | Source chain |
+|---|---|---|---|
+| Regulator notification window | 24 hours (1 business day) to CRA | `agency-confirmed` | manus-2026-05-13 → R. 420.214b |
+| Pre-sale hold/recall check | Required on every transaction | `agency-confirmed` | manus-2026-05-13 → R. 420.214b |
+| Metrc system entry before destruction | Required | `agency-confirmed` | (same) |
+| Destruction window | Within 90 days | `agency-confirmed` | (same) |
+| Adverse-event Metrc menu (non-obvious) | "Patient" menu for BOTH adult-use AND medical responses | `agency-confirmed` | manus-2026-05-13 → MI-Bulletin-49 |
 
 ### Promo and discount rules (MI)
 
@@ -262,9 +280,40 @@ Source: round-2 B4 (manus-2026-05-13 → tax.illinois.gov + 410 ILCS 705/65).
 | Local cannabis tax caps | ≤3% municipal + ≤3.75% county (unincorp.) / 3% county (incorp.). Specific rates per-tenant config, not in ruleset. | (tenant config; statutory caps `secondary-cite-only`) | manus-2026-05-13 → 410 ILCS 705 |
 | Adjusted-THC formula | Δ9-THC% + 0.877 × THCA%. Per-product attribute (`adjustedThcPct` on LineItem); product catalog (M3) must capture from lab COA. Counsel-Q IL-Q4. | `secondary-cite-only` | manus-2026-05-13 → 410 ILCS 705/65 |
 
-### Receipts, returns, voids, promo (IL)
+### Receipts (IL)
 
-All TODO. Awaiting M1.4.
+Source: round-2 B5 → 410 ILCS 705 transaction-data definition + Electronic Cash Register statutory definition. Encoded in `il-2026-05-14.ts` as `receiptBlock`.
+
+| Rule | Value | Status | Source chain |
+|---|---|---|---|
+| Required fields | Includes per-line tax breakdown (CRTA "segregated tax per item" requirement) plus all standard fields (store, license, datetime, receipt ID, item lines, tender, change) | `agency-confirmed` | manus-2026-05-13 → 410 ILCS 705 (eff. 2019-06-25) |
+| **§65-38 zapper-felony immutability** | POS records (including receipts) must be demonstrably immutable. "Automated sales suppression device / zapper / phantom-ware" is a Class 3/4 felony. **This is the highest-priority audit-log architectural requirement.** | `agency-confirmed` | manus-2026-05-13 → 410 ILCS 705/65-38 |
+
+### Returns (IL)
+
+Source: round-2 B6 → 68 Ill. Adm. Code 1291.320 (eff. 2024-08-20). Encoded as `returnsPolicy`.
+
+| Rule | Value | Status | Source chain |
+|---|---|---|---|
+| State Verification System (SVS / Metrc post-7/1/2025) entry window | 5 calendar days | `agency-confirmed` | manus-2026-05-13 → 1291.320 |
+| Resale permitted | No (especially if seal broken or product left premises) | `agency-confirmed` | (same) |
+| Destruction procedure | Per 410 ILCS 705/15-90 (witness, dual-control) | `agency-confirmed` | manus-2026-05-13 → 705/15-90 |
+| Permitted scenarios | ADVERSE_REACTION, DEFECTIVE, MISLABELED, RECALL | `agency-confirmed` | manus-2026-05-13 → 1291.320 |
+
+### Recalls (IL)
+
+Source: round-2 B6 → 1291.330 (eff. 2024-08-20). Encoded as `recallsPolicy`.
+
+| Rule | Value | Status | Source chain |
+|---|---|---|---|
+| Regulator notification window | 24 hours | `agency-confirmed` | manus-2026-05-13 → 1291.330 |
+| Agencies to notify | IDFPR + IDOA + DPH (three agencies, simultaneous) | `agency-confirmed` | (same) |
+| Quarantine minimum | 72 hours before destruction | `agency-confirmed` | (same) |
+| System entry before destruction | Required (SVS / Metrc post-7/1/2025) | `agency-confirmed` | (same) |
+
+### Promo (IL)
+
+TODO — promotional and discount restrictions still pending (round-2 B7 extracted advertising rules but BOGO/loyalty specifics need follow-up).
 
 ---
 
