@@ -69,7 +69,9 @@ enum ProductCategory {
 enum PackageStatus {
   AVAILABLE
   HOLD
+  QUARANTINED
   RECALLED
+  WASTE
   DEPLETED
   RETURNED
 
@@ -250,16 +252,33 @@ model Product {
   name        String
   category    ProductCategory
   brand       String?
+  strain      String?
   description String?
-  thcMg       Decimal?        @map("thc_mg") @db.Decimal(10, 3)
-  cbdMg       Decimal?        @map("cbd_mg") @db.Decimal(10, 3)
-  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  // Per-product cannabinoid mass (single-unit basis). For sales-time
+  // calculation IL needs adjustedThcPct = Δ9-THC% + 0.877 × THCA%.
+  thcMg            Decimal? @map("thc_mg") @db.Decimal(10, 3)
+  cbdMg            Decimal? @map("cbd_mg") @db.Decimal(10, 3)
+  thcD9Pct         Decimal? @map("thc_d9_pct") @db.Decimal(5, 3)
+  thcaPct          Decimal? @map("thca_pct") @db.Decimal(5, 3)
+  // Persisted derived field (Δ9-THC% + 0.877 × THCA%) so the IL tax
+  // engine can route lines without recomputing each request. M3 product
+  // CRUD recomputes this on every write; null until lab data lands.
+  adjustedThcPct   Decimal? @map("adjusted_thc_pct") @db.Decimal(5, 3)
+  // Optional persistent COA reference at the product level (per-package
+  // overrides via Package.coaUrl when batches differ).
+  labCoaUrl        String?  @map("lab_coa_url")
+  // Active flag: backoffice de-lists a product without deleting history
+  // by setting isActive=false.
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   tenant   Tenant    @relation(fields: [tenantId], references: [id])
   packages Package[]
 
   @@unique([tenantId, sku])
   @@index([tenantId])
+  @@index([tenantId, isActive])
   @@map("product")
 }
 
@@ -276,6 +295,9 @@ model Package {
   labeled         Boolean       @default(false)
   recalled        Boolean       @default(false)
   coaUrl          String?       @map("coa_url")
+  // Cultivation harvest date for this package. Required for receipts in
+  // some jurisdictions; nullable until M3 backoffice CRUD populates it.
+  harvestDate     DateTime?     @map("harvest_date") @db.Date
   parentPackageId String?       @map("parent_package_id") @db.Uuid
   receivedAt      DateTime?     @map("received_at") @db.Timestamptz
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
