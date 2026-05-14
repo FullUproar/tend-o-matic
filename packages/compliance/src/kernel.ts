@@ -13,6 +13,7 @@ import {
   checkTransactionLimits,
   findUnimplementedWindow,
 } from "./limit-math";
+import { computeTaxBreakdown } from "./tax-engine";
 
 export type ApplyResult =
   | { ok: true; cart: Cart }
@@ -214,16 +215,9 @@ export function makeKernel(env: KernelEnv): ComplianceKernel {
     computeTaxes(cart) {
       const ruleGuard = guardRuleset(cart.ruleset, env);
       if (ruleGuard) return { ok: false, reason: ruleGuard };
-      // Tax block is entirely TODO in the dossier; this method always
-      // refuses until tax values are populated and counsel-verified.
-      return {
-        ok: false,
-        reason: {
-          code: "RULESET_INSUFFICIENT_VERIFICATION",
-          required: "counsel-verified",
-          actual: "todo",
-        },
-      };
+      const r = computeTaxBreakdown(cart);
+      if (!r.ok) return { ok: false, reason: r.reason };
+      return { ok: true, taxes: r.breakdown };
     },
 
     renderReceipt(cart) {

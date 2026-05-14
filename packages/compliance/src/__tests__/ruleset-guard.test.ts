@@ -41,8 +41,20 @@ describe("kernel ruleset verification guard", () => {
     }
   });
 
-  it("refuses computeTaxes universally in v0.1 because tax block is TODO", () => {
+  it("computeTaxes succeeds under secondary-cite-only with populated tax block (M1.3)", () => {
+    // M1.3 lands the MI tax block. Empty cart subtotal=0 → tax=0, but
+    // the call succeeds rather than refuses.
     const kernel = makeKernel({ requireRulesetStatus: "secondary-cite-only" });
+    const result = kernel.computeTaxes(baseCartMI());
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.taxes.subtotalCents).toBe(0);
+      expect(result.taxes.totalTaxCents).toBe(0);
+    }
+  });
+
+  it("computeTaxes refuses under counsel-verified threshold (fixture is secondary-cite-only)", () => {
+    const kernel = makeKernel({ requireRulesetStatus: "counsel-verified" });
     const result = kernel.computeTaxes(baseCartMI());
     expect(result.ok).toBe(false);
     if (!result.ok) {

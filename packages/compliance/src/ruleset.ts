@@ -3,6 +3,7 @@ import type { CustomerKind } from "./customer";
 import type { Limit } from "./limit";
 import type { EquivalencyTable } from "./equivalency";
 import type { Provenance } from "./provenance";
+import type { TaxBlock } from "./tax";
 
 // A Ruleset is the dated, immutable encoding of the rules in force for
 // one jurisdiction at one point in time. Old rulesets are forever: a sale
@@ -25,8 +26,9 @@ export type Ruleset = {
   limitsProvenance: Provenance;
   equivalencies: EquivalencyTable;
   equivalenciesProvenance: Provenance;
-  // Tax, receipt, promo intentionally omitted from v0.1 — their rule
-  // values are entirely TODO in the dossier. Adding them later is a
-  // non-breaking extension because the kernel refuses to compute taxes
-  // or render receipts when the corresponding ruleset field is missing.
+  // Tax block. Null until populated; kernel.computeTaxes refuses with
+  // RULESET_INSUFFICIENT_VERIFICATION when null. Each rate carries its
+  // own customer/category/THC restrictions.
+  taxBlock: TaxBlock | null;
+  // Receipt + promo blocks deliberately omitted; added in subsequent PRs.
 };

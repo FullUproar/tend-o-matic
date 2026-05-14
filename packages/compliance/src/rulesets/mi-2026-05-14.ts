@@ -132,4 +132,55 @@ export const MI_2026_05_14: Ruleset = {
     status: "secondary-cite-only",
     sources: [SRC_R_420_506, SRC_MCL_333_26424],
   },
+  // Tax block (round-2 A4). MI stacks:
+  //   STATE_EXCISE: 10% Marijuana Retailers Excise (MRE), eff. 2018-12-06.
+  //     Adult-use only — medical patients (MMFLA) are exempt.
+  //   STATE_SALES:  6% sales tax computed on (subtotal + MRE). Applies
+  //                 to all customers including medical.
+  // Local taxes are per-tenant config (cart.localTaxes); MI municipalities
+  // may impose excise via local ordinance, not encoded here.
+  // The 24% Wholesale Marijuana Tax (eff. 2026-01-01) is OUT OF SCOPE for
+  // a retail dispensary POS — it applies to wholesale-only transactions
+  // between licensed establishments, not retail point-of-sale.
+  // Counsel review questions:
+  //   MI-Q5: Rounding policy (per-line vs subtotal) — not addressed by
+  //          Manus. Marked TODO; computeTaxes accepts both but the
+  //          fixture's choice gates production correctness.
+  //   MI-Q6: Sales-tax base — "subtotal + MRE" is the standard reading
+  //          of the dossier's "the sales tax is applied to the subtotal
+  //          after the excise tax has been added" sentence. Counsel
+  //          should confirm the Department of Treasury writeup matches.
+  taxBlock: {
+    rates: [
+      {
+        code: "STATE_EXCISE",
+        label: "MI Marijuana Retailers Excise (MRE)",
+        rate: 0.1,
+        base: "SUBTOTAL",
+        excludeCustomerKinds: ["MI_MED_PATIENT"],
+      },
+      {
+        code: "STATE_SALES",
+        label: "MI Sales Tax",
+        rate: 0.06,
+        base: "SUBTOTAL_PLUS_PRIOR_STATE_TAX",
+      },
+    ],
+    rounding: "TODO",
+    provenance: {
+      status: "secondary-cite-only",
+      sources: [
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "About the Marijuana Retailers Excise (MRE) Tax (michigan.gov/treasury) — 10% MRE eff. 2018-12-06",
+        },
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "Michigan Treasury — 6% sales tax stacked on subtotal+MRE",
+        },
+      ],
+    },
+  },
 };

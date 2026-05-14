@@ -54,6 +54,14 @@ export type RefusalReason =
       packageId: string;
       providedUnit: string;
       expectedUnit: string;
+    }
+  | {
+      // A line item is missing data the tax engine needs to compute its
+      // tier. Currently used for IL non-infused tax tiers (10% / 25%)
+      // which require `adjustedThcPct` on the line.
+      code: "TAX_INPUT_MISSING";
+      packageId: string;
+      missingField: string;
     };
 
 export type RefusalCode = RefusalReason["code"];

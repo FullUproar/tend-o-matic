@@ -135,4 +135,91 @@ export const IL_2026_05_14: Ruleset = {
     status: "secondary-cite-only",
     sources: [SRC_CRTA, SRC_CROO_FAQ_2025_09_22],
   },
+  // Tax block (round-2 B4). IL has three statutory layers:
+  //
+  // 1. Cannabis Purchaser Excise Tax (per-line, category & THC% driven):
+  //    - Non-infused (FLOWER/PRE_ROLL/CONCENTRATE, includes vapes per
+  //      B4 note) with adjusted THC ≤ 35%: 10%
+  //    - Non-infused with adjusted THC > 35%: 25%
+  //    - Cannabis-infused products (EDIBLE/INFUSED/TOPICAL): 20%
+  //    - Medical cannabis: EXEMPT.
+  //    Adjusted THC formula (CRTA): Δ9-THC% + 0.877 × THCA%.
+  //    Each line MUST carry `adjustedThcPct` for non-infused categories;
+  //    absence is a TAX_INPUT_MISSING refusal.
+  //
+  // 2. State Retailers' Occupation Tax (sales-style, on subtotal):
+  //    - Adult-use: 6.25%
+  //    - Medical: 1% (qualifying-drug rate)
+  //
+  // 3. Local cannabis taxes (per-tenant config in cart.localTaxes —
+  //    not encoded here). Caps are statutory:
+  //    ≤3% municipal + ≤3.75% county (unincorporated) / 3% (incorporated).
+  //
+  // Counsel review questions:
+  //   IL-Q4: Adjusted-THC computation timing — Manus B4 notes the formula
+  //          but doesn't address how the POS verifies/sources lab-COA
+  //          THC at line level. Encoding: the POS application supplies
+  //          per-product `adjustedThcPct`; M3 product-catalog work will
+  //          enforce its presence at ingest.
+  taxBlock: {
+    rates: [
+      // Cannabis Purchaser Excise — non-infused, ≤35% THC: 10%
+      {
+        code: "STATE_EXCISE",
+        label: "IL Cannabis Excise (≤35% THC)",
+        rate: 0.1,
+        base: "LINE_PRICE",
+        onlyForCategories: ["FLOWER", "PRE_ROLL", "CONCENTRATE"],
+        thcCondition: { op: "lte", pct: 35 },
+        excludeCustomerKinds: ["IL_MED_PATIENT"],
+      },
+      // Cannabis Purchaser Excise — non-infused, >35% THC: 25%
+      {
+        code: "STATE_EXCISE",
+        label: "IL Cannabis Excise (>35% THC)",
+        rate: 0.25,
+        base: "LINE_PRICE",
+        onlyForCategories: ["FLOWER", "PRE_ROLL", "CONCENTRATE"],
+        thcCondition: { op: "gt", pct: 35 },
+        excludeCustomerKinds: ["IL_MED_PATIENT"],
+      },
+      // Cannabis Purchaser Excise — infused/edible/topical: flat 20%
+      {
+        code: "STATE_EXCISE",
+        label: "IL Cannabis Excise (Infused)",
+        rate: 0.2,
+        base: "LINE_PRICE",
+        onlyForCategories: ["INFUSED", "EDIBLE", "TOPICAL"],
+        excludeCustomerKinds: ["IL_MED_PATIENT"],
+      },
+      // State Retailers' Occupation Tax — adult-use: 6.25%
+      {
+        code: "STATE_SALES",
+        label: "IL State ROT (Adult-use)",
+        rate: 0.0625,
+        base: "SUBTOTAL",
+        excludeCustomerKinds: ["IL_MED_PATIENT"],
+      },
+      // State Retailers' Occupation Tax — medical: 1%
+      {
+        code: "STATE_SALES",
+        label: "IL State ROT (Medical)",
+        rate: 0.01,
+        base: "SUBTOTAL",
+        onlyCustomerKinds: ["IL_MED_PATIENT"],
+      },
+    ],
+    rounding: "PER_SUBTOTAL",
+    provenance: {
+      status: "secondary-cite-only",
+      sources: [
+        {
+          provider: "manus",
+          date: "2026-05-13",
+          cite: "Illinois Department of Revenue: Cannabis Taxes (tax.illinois.gov) + 410 ILCS 705/65 (excise + ROT)",
+          url: "https://tax.illinois.gov/research/taxinformation/excise/cannabis.html",
+        },
+      ],
+    },
+  },
 };

@@ -13,4 +13,5 @@ export * from "./receipt";
 export * from "./promo";
 export * from "./kernel";
 export * from "./limit-math";
+export * from "./tax-engine";
 export * from "./rulesets";

@@ -2,6 +2,7 @@ import type { CustomerType } from "./customer";
 import type { ProductCategory } from "./product";
 import type { Weight } from "./weight";
 import type { Ruleset } from "./ruleset";
+import type { TaxRate } from "./tax";
 
 export type LineItem = {
   packageId: string;
@@ -15,6 +16,12 @@ export type LineItem = {
   tested: boolean;
   labeled: boolean;
   recalled: boolean;
+  // Adjusted-Δ9-THC percentage for the product. Required for any line
+  // whose category falls under a THC-tiered tax rate (IL non-infused
+  // tiers at 10% / 25%). Formula per IL CRTA: Δ9-THC% + 0.877 × THCA%.
+  // Absent on a line that needs it → TAX_INPUT_MISSING refusal at
+  // computeTaxes time.
+  adjustedThcPct?: number;
 };
 
 export type Cart = {
@@ -31,4 +38,10 @@ export type Cart = {
   // use sale; medical patient verification is tracked separately on
   // the customer-type variant.
   idVerified: boolean;
+  // Local tax rates supplied by the tenant configuration. Round-2 sets
+  // statutory caps (≤3% municipal + ≤3.75% county unincorp / 3% county
+  // incorp for IL) but the specific rate per municipality is a per-
+  // tenant value, not encoded in the ruleset. The kernel applies these
+  // additively after ruleset rates.
+  localTaxes?: ReadonlyArray<TaxRate>;
 };

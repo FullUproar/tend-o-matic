@@ -45,6 +45,9 @@ These are interpretive calls the round-2 dossier (`docs/sources/manus-2026-05-13
 - [ ] **IL-Q1 (B3):** June 2025 CROO doc states 21.3 g THC equivalency for vapes/concentrates against the 14-day cap; Sept 22 2025 CROO doc states 26.6 g. Encoded the newer value (26.6 g / 26,600 mg). Counsel must confirm which is current.
 - [ ] **IL-Q2 (B2):** "Cumulative" phrasing in CROO FAQs is ambiguous (per-category caps vs combined cap). Encoded as INDEPENDENT per-category caps, which is the standard CRTA reading.
 - [ ] **IL-Q3 (B2):** Package-level 100 mg THC and per-serving 10 mg THC caps are product-catalog validations, not cart-level. Will be enforced at product ingest in M3.
+- [ ] **MI-Q5 (A4):** Tax rounding policy — per-line vs per-subtotal. Manus did not extract a Treasury rule. Encoded as `rounding: "TODO"` in the MI tax block; tax engine accepts both modes but the choice gates production correctness (cents drift across thousands of sales).
+- [ ] **MI-Q6 (A4):** Sales-tax base interpretation. Round-2 Product-Implications text says "the sales tax is applied to the subtotal after the excise tax has been added" — encoded as `base: SUBTOTAL_PLUS_PRIOR_STATE_TAX`. Confirm Treasury writeup matches this reading.
+- [ ] **IL-Q4 (B4):** Adjusted-THC computation timing. Encoded as a per-LineItem attribute (`adjustedThcPct`) sourced from the lab COA at product ingest (M3). Counsel should confirm the POS is permitted to rely on the lab-certified value rather than recompute.
 
 ### Status updates from M1.1 (2026-05-14)
 
@@ -129,13 +132,16 @@ Encoded in `packages/compliance/src/rulesets/mi-2026-05-14.ts`. The kernel refus
 
 ### Taxes (MI)
 
+Source: round-2 A4 (manus-2026-05-13 → michigan.gov/treasury + MCL 333.27963).
+
 | Rule | Value | Status | Source chain |
 |---|---|---|---|
-| State cannabis excise rate (adult-use) | TODO — Manus did not extract | `todo` | — |
-| Sales tax application by customer type | TODO | `todo` | — |
-| Local municipality cannabis tax mechanics | TODO | `todo` | — |
-| Patient/caregiver tax exemption rules | TODO | `todo` | — |
-| Rounding rules (per-line vs subtotal) | TODO | `todo` | — |
+| Marijuana Retailers Excise (MRE) | 10% of retail subtotal, adult-use only (medical patients exempt per MMFLA). Eff. 2018-12-06. | `secondary-cite-only` | manus-2026-05-13 → "About the Marijuana Retailers Excise (MRE) Tax" (michigan.gov/treasury) |
+| State sales tax | 6% applied to (subtotal + MRE) — stacked. Applies to all customers. | `secondary-cite-only` | manus-2026-05-13 → michigan.gov/treasury |
+| Local municipal cannabis tax | Per-tenant config supplied via `cart.localTaxes` at runtime. Not in ruleset. | (tenant config) | — |
+| Patient/caregiver tax exemption | MMFLA-licensed patients exempt from MRE. Encoded via `excludeCustomerKinds: ["MI_MED_PATIENT"]`. | `secondary-cite-only` | manus-2026-05-13 → MMFLA |
+| Rounding rules (per-line vs subtotal) | **TODO — counsel-Q MI-Q5** | `todo` | — |
+| Wholesale Marijuana Tax (24% eff. 2026-01-01) | OUT OF SCOPE for retail dispensary POS — applies only to wholesale-only transactions between licensed establishments. | (out-of-scope) | — |
 
 ### METRC operations (MI)
 
@@ -241,9 +247,24 @@ IL adult-use limits are **independent per-category** (no roll-up to total ounces
 | Damaged-unit workflow | Accept the package, create a new tagged package for rejected/damaged units, manifest back or destroy | `secondary-cite-only` | manus-2026-05-13 → CROO seed-to-sale FAQ |
 | Scanner / RFID | Inspectors carry scanners; dispensaries can use regular barcode or RFID | `secondary-cite-only` | manus-2026-05-13 → CROO seed-to-sale FAQ |
 
-### Taxes, receipts, returns, voids, promo (IL)
+### Taxes (IL)
 
-All TODO. Manus did not extract Illinois-specific tax rates, receipt content, return/void mechanics, or promo restrictions.
+Source: round-2 B4 (manus-2026-05-13 → tax.illinois.gov + 410 ILCS 705/65).
+
+| Rule | Value | Status | Source chain |
+|---|---|---|---|
+| Cannabis Purchaser Excise — non-infused, adj. THC ≤ 35% | 10% per-line on retail price. Applies to FLOWER, PRE_ROLL, CONCENTRATE (incl. vapes per B4). | `secondary-cite-only` | manus-2026-05-13 → 410 ILCS 705/65 + tax.illinois.gov cannabis page |
+| Cannabis Purchaser Excise — non-infused, adj. THC > 35% | 25% per-line. | `secondary-cite-only` | (same) |
+| Cannabis Purchaser Excise — infused | 20% per-line. Applies to INFUSED, EDIBLE, TOPICAL. | `secondary-cite-only` | (same) |
+| Medical exemption from excise | IL_MED_PATIENT exempt from Cannabis Purchaser Excise. Encoded via `excludeCustomerKinds`. | `secondary-cite-only` | manus-2026-05-13 → 410 ILCS 705/65 |
+| State Retailers' Occupation Tax (ROT) — adult-use | 6.25% of subtotal. | `secondary-cite-only` | manus-2026-05-13 → tax.illinois.gov |
+| State Retailers' Occupation Tax — medical | 1% (qualifying-drug rate) of subtotal. Encoded as separate rate with `onlyCustomerKinds: ["IL_MED_PATIENT"]`. | `secondary-cite-only` | manus-2026-05-13 → tax.illinois.gov |
+| Local cannabis tax caps | ≤3% municipal + ≤3.75% county (unincorp.) / 3% county (incorp.). Specific rates per-tenant config, not in ruleset. | (tenant config; statutory caps `secondary-cite-only`) | manus-2026-05-13 → 410 ILCS 705 |
+| Adjusted-THC formula | Δ9-THC% + 0.877 × THCA%. Per-product attribute (`adjustedThcPct` on LineItem); product catalog (M3) must capture from lab COA. Counsel-Q IL-Q4. | `secondary-cite-only` | manus-2026-05-13 → 410 ILCS 705/65 |
+
+### Receipts, returns, voids, promo (IL)
+
+All TODO. Awaiting M1.4.
 
 ---
 
