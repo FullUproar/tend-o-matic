@@ -18,11 +18,28 @@ export async function voidSaleAction(saleId: string, form: FormData) {
     throw new Error("Void reason must be at least 3 characters.");
   }
 
-  // Atomic void: sale status flip + same-transaction audit row.
+  // Atomic void: sale status flip + per-line package qty restoration
+  // + same-transaction audit row. M3.2 wires the inventory side of
+  // the void event. Tender refund (cash drawer / cashless ATM) is
+  // still TODO — voiding a sale flags the audit row; reconciliation
+  // queue (M5+) handles the money side.
   await prisma.$transaction(async (tx) => {
     const sale = await tx.sale.findFirst({
       where: { id: saleId, tenantId },
-      select: { id: true, status: true, subtotalCents: true, taxCents: true, totalCents: true },
+      select: {
+        id: true,
+        status: true,
+        subtotalCents: true,
+        taxCents: true,
+        totalCents: true,
+        items: {
+          select: {
+            packageId: true,
+            weightValue: true,
+            qty: true,
+          },
+        },
+      },
     });
     if (!sale) throw new Error(`Sale not found: ${saleId}`);
     if (sale.status !== "COMPLETE") {
@@ -37,6 +54,21 @@ export async function voidSaleAction(saleId: string, form: FormData) {
         voidReason: reason,
       },
     });
+
+    // Restore each line's qty to its package and un-deplete if needed.
+    for (const item of sale.items) {
+      const restore = Number(item.weightValue) * Number(item.qty);
+      await tx.package.update({
+        where: { id: item.packageId },
+        data: { qty: { increment: restore } },
+      });
+      // Re-mark the package AVAILABLE if it was DEPLETED.
+      await tx.package.updateMany({
+        where: { id: item.packageId, tenantId, status: "DEPLETED" },
+        data: { status: "AVAILABLE" },
+      });
+    }
+
     await tx.auditLog.create({
       data: {
         tenantId,
@@ -49,13 +81,14 @@ export async function voidSaleAction(saleId: string, form: FormData) {
           subtotalCents: Number(sale.subtotalCents),
           taxCents: Number(sale.taxCents),
           totalCents: Number(sale.totalCents),
+          inventoryRestored: sale.items.map((i) => ({
+            packageId: i.packageId,
+            weightValue: Number(i.weightValue),
+            qty: Number(i.qty),
+          })),
         },
       },
     });
-    // Inventory restoration + tender refund tied to this void event
-    // land with M3.2 (inventory decrement work) and a future tender-
-    // refund PR. For now the audit row is the durable record that the
-    // sale was voided; downstream systems reconcile via that row.
   });
 
   revalidatePath("/sales");

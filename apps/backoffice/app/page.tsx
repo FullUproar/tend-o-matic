@@ -121,14 +121,16 @@ export default async function Page() {
             and active/inactive state.
           </p>
         </Link>
-        <div className="rounded-md border border-dashed border-kraft-300 bg-paper p-4 opacity-60">
-          <div className="font-display text-base font-semibold text-ink-soft">
-            Inventory (M3.2)
-          </div>
+        <Link
+          href="/inventory"
+          className="rounded-md border border-kraft-300 bg-cream p-4 transition-colors hover:border-kraft-700"
+        >
+          <div className="font-display text-base font-semibold">Inventory</div>
           <p className="mt-1 text-xs text-ink-soft">
-            Package list, FIFO selection, manual adjustment with audit.
+            Per-package qty / status with audited manual adjustments. Sales now
+            decrement automatically; voids restore.
           </p>
-        </div>
+        </Link>
         <div className="rounded-md border border-dashed border-kraft-300 bg-paper p-4 opacity-60">
           <div className="font-display text-base font-semibold text-ink-soft">
             Compliance alerts (M9)
