@@ -195,6 +195,28 @@ async function main() {
   }
   console.log(`  ${sampleProducts.length} sample products + packages`);
 
+  // De-list legacy lazy products from the M2.5c "ensureDemoPackage"
+  // code path (now deleted). Their orphan packages get marked WASTE so
+  // they stop showing up as sellable inventory. Idempotent: if the
+  // rows don't exist, the updateMany is a no-op.
+  const legacySkuPrefixes = ["demo-flower-g", "demo-flower-oz", "demo-concentrate-g"];
+  for (const sku of legacySkuPrefixes) {
+    const legacy = await prisma.product.findFirst({
+      where: { tenantId: tenant.id, sku },
+      select: { id: true },
+    });
+    if (!legacy) continue;
+    await prisma.product.update({
+      where: { id: legacy.id },
+      data: { isActive: false },
+    });
+    await prisma.package.updateMany({
+      where: { tenantId: tenant.id, productId: legacy.id, status: "AVAILABLE" },
+      data: { status: "WASTE" },
+    });
+    console.log(`  cleaned up legacy product ${sku}`);
+  }
+
   console.log("\nSeed identifiers (for till app .env / seed-aware code):");
   console.log(`  TENANT_ID=${tenant.id}`);
   console.log(`  LOCATION_ID=${location.id}`);

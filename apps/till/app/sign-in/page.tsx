@@ -86,10 +86,12 @@ export default async function SignInPage({
           </button>
         </form>
 
-        <footer className="text-center text-xs text-ink-soft">
-          Demo: <span className="font-mono">cashier@demo-mi.tend-o-matic.com</span> /{" "}
-          <span className="font-mono">demopass</span>
-        </footer>
+        {process.env.NEXT_PUBLIC_DEMO_MODE === "true" && (
+          <footer className="text-center text-xs text-ink-soft">
+            Demo: <span className="font-mono">cashier@demo-mi.tend-o-matic.com</span> /{" "}
+            <span className="font-mono">demopass</span>
+          </footer>
+        )}
       </div>
     </main>
   );
