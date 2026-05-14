@@ -13,17 +13,19 @@ import {
   type RefusalReason,
 } from "@tend-o-matic/compliance";
 import { CustomerSelector } from "./CustomerSelector";
-import { LineEntry } from "./LineEntry";
+import { ProductPicker } from "./ProductPicker";
 import { CartView } from "./CartView";
 import { RefusalBanner } from "./RefusalBanner";
 import { TenderEntry } from "./TenderEntry";
 import { ReceiptPreview } from "./ReceiptPreview";
 import type { SessionIdentity } from "../lib/identity";
+import type { CatalogProduct } from "../lib/catalog";
 import { completeSaleAction, signOutAction } from "../app/actions";
 import { refusalToText } from "../lib/refusal-text";
 
 type Props = {
   identity: SessionIdentity;
+  catalog: ReadonlyArray<CatalogProduct>;
 };
 
 const kernel = makeKernel({ requireRulesetStatus: "secondary-cite-only" });
@@ -34,7 +36,7 @@ type CompletedSale = {
   changeDueCents: number;
 };
 
-export function TillShell({ identity }: Props) {
+export function TillShell({ identity, catalog }: Props) {
   const buildInitialCart = (): Cart =>
     openCart({
       tenantId: identity.tenantId,
@@ -178,7 +180,7 @@ export function TillShell({ identity }: Props) {
                 onCustomerChange={onSetCustomer}
                 onIdVerifiedChange={onSetIdVerified}
               />
-              <LineEntry onAddLine={onAddLine} />
+              <ProductPicker catalog={catalog} onAddLine={onAddLine} />
               {refusal && <RefusalBanner refusal={refusal} />}
               {serverError && (
                 <div

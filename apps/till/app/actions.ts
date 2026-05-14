@@ -61,48 +61,6 @@ export type CompleteSaleResponse =
       refusal?: RefusalReason;
     };
 
-// Idempotency: ensure ONE demo Product + ONE demo Package exists per
-// (tenant, category, weightUnit) so cart lines can reference them. Until
-// M3 product catalog ships, training-mode sales share these bins.
-async function ensureDemoPackage(
-  tenantId: string,
-  locationId: string,
-  category: string,
-  weightUnit: string,
-): Promise<string> {
-  const sku = `demo-${category.toLowerCase()}-${weightUnit.toLowerCase()}`;
-  const metrcTag = `DEMO-${tenantId.slice(0, 8)}-${category}-${weightUnit}`;
-  const existing = await prisma.package.findFirst({
-    where: { tenantId, metrcTag },
-    select: { id: true },
-  });
-  if (existing) return existing.id;
-  const product = await prisma.product.upsert({
-    where: { tenantId_sku: { tenantId, sku } },
-    update: {},
-    create: {
-      tenantId,
-      sku,
-      name: `Demo ${category}`,
-      category: category as never,
-    },
-  });
-  const pkg = await prisma.package.create({
-    data: {
-      tenantId,
-      locationId,
-      productId: product.id,
-      metrcTag,
-      qty: 99999,
-      qtyUnit: weightUnit,
-      tested: true,
-      labeled: true,
-      recalled: false,
-    },
-  });
-  return pkg.id;
-}
-
 export async function completeSaleAction(
   input: CompleteSaleInput,
 ): Promise<CompleteSaleResponse> {
@@ -174,21 +132,29 @@ export async function completeSaleAction(
   }
   const changeDueCents = input.tenderAmountCents - tax.grandTotalCents;
 
-  // 4. Ensure demo Product + Package rows exist for each line's category.
-  // These are auto-minted bins for training mode; M3 product catalog
-  // replaces this with real catalog reads.
-  const packageIdByCategory = new Map<string, string>();
+  // 4. Resolve each cart line's productId (the till's ProductPicker
+  // uses Product.id as packageId) into a real Package row. M3.4 reads
+  // the seed-created Packages directly; M3.2 inventory work will pick
+  // by FIFO + lot-status instead of the first available.
+  const packageIdByProduct = new Map<string, string>();
   for (const line of cart.lines) {
-    const key = `${line.category}|${line.weight.unit}`;
-    if (!packageIdByCategory.has(key)) {
-      const pkgId = await ensureDemoPackage(
+    if (packageIdByProduct.has(line.packageId)) continue;
+    const pkg = await prisma.package.findFirst({
+      where: {
         tenantId,
-        locationId,
-        line.category,
-        line.weight.unit,
-      );
-      packageIdByCategory.set(key, pkgId);
+        productId: line.packageId,
+        status: "AVAILABLE",
+      },
+      select: { id: true },
+      orderBy: { createdAt: "asc" }, // FIFO until M3.2 ships
+    });
+    if (!pkg) {
+      return {
+        ok: false,
+        reason: `No available package for product ${line.packageId}. Add stock in the backoffice.`,
+      };
     }
+    packageIdByProduct.set(line.packageId, pkg.id);
   }
 
   // 5. Atomic sale write: withTenant pins the GUC, completeSale issues
@@ -206,9 +172,7 @@ export async function completeSaleAction(
       taxCents: tax.totalTaxCents,
       totalCents: tax.grandTotalCents,
       lines: cart.lines.map((line) => ({
-        packageId: packageIdByCategory.get(
-          `${line.category}|${line.weight.unit}`,
-        )!,
+        packageId: packageIdByProduct.get(line.packageId)!,
         category: line.category,
         qty: line.qty,
         weightValue: line.weight.value,
