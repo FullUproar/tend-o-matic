@@ -8,14 +8,6 @@ import { PrismaClient } from "@prisma/client";
 const TENANT_SLUG = "demo-mi";
 const CASHIER_EMAIL = "cashier@demo-mi.tend-o-matic.com";
 
-// Vercel's Neon integration sets POSTGRES_PRISMA_URL (pooled, Prisma-ready),
-// not DATABASE_URL. Bridge the two so schema.prisma's `env("DATABASE_URL")`
-// resolves on Vercel without requiring the user to duplicate the secret.
-// Local dev (packages/db/.env) sets DATABASE_URL directly and this no-ops.
-if (!process.env.DATABASE_URL && process.env.POSTGRES_PRISMA_URL) {
-  process.env.DATABASE_URL = process.env.POSTGRES_PRISMA_URL;
-}
-
 const prisma = new PrismaClient();
 
 export type SeedIdentity = {
