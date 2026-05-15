@@ -32,6 +32,11 @@ export function BudtenderSection() {
             tag="shipping next"
           />
           <FeatureCard
+            kicker="customer-safe scripts"
+            title="Compliance without confrontation."
+            body="When the kernel refuses, the till shows the budtender the diagnostic and writes the customer a script. Names the state rule, cites the specific number, offers a path forward. Read it aloud or copy it into a text. The customer hears Michigan — not store policy."
+          />
+          <FeatureCard
             kicker="refusal recovery"
             title="Never just say no."
             body="When a limit blocks the sale, the till suggests the package that fits — equivalent product, under the cap, in stock. Budtender looks like a hero. Customer doesn’t walk out empty-handed."
