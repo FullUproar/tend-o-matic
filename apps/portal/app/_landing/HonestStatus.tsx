@@ -21,6 +21,7 @@ export function HonestStatus() {
               "Per-line tax attribution + ESC/POS receipts",
               "Cart-time limit headroom",
               "Service mode: Express / Guided / First-time / Medical",
+              "Customer-safe refusal scripts (compliance without confrontation)",
               "Inventory + Metrc package model",
               "Sales reporting + void with reason",
               "Audit log + manager override flow",
