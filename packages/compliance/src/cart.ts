@@ -3,6 +3,7 @@ import type { ProductCategory } from "./product";
 import type { Weight } from "./weight";
 import type { Ruleset } from "./ruleset";
 import type { TaxRate } from "./tax";
+import type { ServiceMode } from "./service-mode";
 
 export type LineItem = {
   packageId: string;
@@ -44,4 +45,10 @@ export type Cart = {
   // tenant value, not encoded in the ruleset. The kernel applies these
   // additively after ruleset rates.
   localTaxes?: ReadonlyArray<TaxRate>;
+  // Budtender-set interaction mode for this transaction. Pure UI hint
+  // — never gates a kernel check. Defaulted to DEFAULT_SERVICE_MODE
+  // by openCart, so consumers can treat undefined as GUIDED. See
+  // packages/compliance/src/service-mode.ts and docs/budtender-
+  // rockstar-plan.md for the source of the four modes.
+  serviceMode?: ServiceMode;
 };

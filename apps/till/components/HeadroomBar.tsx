@@ -3,8 +3,14 @@
 // Live headroom indicator: shows the cashier where the cart sits
 // against every applicable limit, color-coded by % used. Renders only
 // when the customer has at least one limit defined for this ruleset.
+//
+// Service-mode-aware: in GUIDED mode the full per-dimension bars
+// render. In EXPRESS mode the bar collapses to a single inline pill
+// — "Within limits" green, "Approaching" mustard, "At limit" red —
+// reflecting the worst-case dimension. The express-customer paradigm
+// is "keep the line moving"; full headroom detail is a distraction.
 
-import type { Cart } from "@tend-o-matic/compliance";
+import type { Cart, LimitHeadroom } from "@tend-o-matic/compliance";
 import { cartHeadroom } from "@tend-o-matic/compliance";
 
 type Props = {
@@ -90,9 +96,57 @@ function toneFor(pct: number): { fill: string; track: string; text: string } {
   };
 }
 
+// Worst-case headroom across all enforced (priorUsage-ready) rows.
+// Used by the EXPRESS-mode pill to summarize the cart in one line.
+function worstCase(rows: ReadonlyArray<LimitHeadroom>): {
+  pct: number;
+  row: LimitHeadroom | null;
+} {
+  let worst: LimitHeadroom | null = null;
+  for (const row of rows) {
+    if (row.priorUsageNeeded) continue;
+    if (!worst || row.percentUsed > worst.percentUsed) worst = row;
+  }
+  return { pct: worst?.percentUsed ?? 0, row: worst };
+}
+
+function summaryLabel(pct: number): string {
+  if (pct >= 1.0) return "At limit";
+  if (pct >= 0.75) return "Near limit";
+  if (pct >= 0.5) return "Half used";
+  return "Within limits";
+}
+
 export function HeadroomBar({ cart }: Props) {
   const rows = cartHeadroom(cart);
   if (rows.length === 0) return null;
+
+  // Express mode: collapse to a single-row summary pill. The shopping
+  // dynamic the brief flagged ("take my money, keep the line moving")
+  // is not served by a four-bar headroom report.
+  if (cart.serviceMode === "EXPRESS") {
+    const { pct, row } = worstCase(rows);
+    const tone = toneFor(pct);
+    return (
+      <div
+        className={`flex items-center justify-between rounded-md border px-3 py-2 text-xs ${
+          row && !row.priorUsageNeeded ? "border-kraft-300" : "border-dashed border-kraft-300"
+        } bg-cream`}
+        aria-label="Limit headroom summary"
+      >
+        <span className={`font-display font-semibold uppercase tracking-wide ${tone.text}`}>
+          {summaryLabel(pct)}
+        </span>
+        {row && !row.priorUsageNeeded && (
+          <span className="font-mono text-ink-soft">
+            {humanDimension(row.dimension)}{" "}
+            {formatAmount(row.used, row.dimension)} /{" "}
+            {formatAmount(row.max, row.dimension)}
+          </span>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-md border border-kraft-300 bg-cream p-3">
